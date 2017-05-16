@@ -9,7 +9,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 group 'io.saagie'
-version '1.0.0-SNAPSHOT'
+version version
 description 'Gradle plugin to automatically upload archives into a specified platform and create or update jobs'
 
 repositories {
