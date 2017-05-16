@@ -26,13 +26,13 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: jUnit
 }
 
+configurations {
+    pom
+}
+
 github {
     user 'saagie'
     license 'Apache'
-}
-
-configurations {
-    pom
 }
 
 pom {
