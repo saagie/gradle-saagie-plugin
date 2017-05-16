@@ -11,5 +11,4 @@ before_install:
   - openssl aes-256-cbc -d -a -k $openssl_key -in secring.gpg.enc -out secring.gpg
   - echo signing.password=$gpg_pass >> gradle.properties
 script:
-  - gradle build
-
+  - gradle build --stacktrace --info
