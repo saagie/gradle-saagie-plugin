@@ -8,7 +8,6 @@ cache:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
 before_install:
-  - gradle wrapper --gradle-version 3.5
   - openssl aes-256-cbc -d -a -k $openssl_key -in secring.gpg.enc -out secring.gpg
   - echo signing.password=$gpg_pass >> gradle.properties
 script:
