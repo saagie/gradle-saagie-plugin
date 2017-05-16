@@ -1,0 +1,27 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+group 'io.saagie'
+version '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: logback
+
+    compile gradleApi()
+    compile group: 'com.mashape.unirest', name: 'unirest-java', version: unirest
+
+
+    testCompile group: 'junit', name: 'junit', version: jUnit
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: uri('../repo'))
+        }
+    }
+}
