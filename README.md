@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/saagie/gradle-saagie-plugin.svg?branch=master)](https://travis-ci.org/saagie/gradle-saagie-plugin)
+
 # gradle-saagie-plugin
 
 A Gradle plugin to push archives to Saagie Datafabric and create or update jobs.
