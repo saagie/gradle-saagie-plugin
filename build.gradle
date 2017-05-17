@@ -31,12 +31,6 @@ configurations {
     pom
 }
 
-/*github {
-    user 'saagie'
-    license 'Apache'
-}
-*/
-
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier 'javadoc'
     from javadoc.destinationDir
