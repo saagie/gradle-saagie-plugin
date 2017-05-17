@@ -16,7 +16,7 @@ before_install:
   - export PATH=$GRADLE_HOME/bin:$PATH
 script:
   - gradle test --stacktrace
-  - gradle uploadArchive
+  - gradle uploadArchive --info --stacktrace
 env:
   global:
   - secure: FCStFgu8w9OEMvrnGTQhLUBiAMiEkor3WU1JVclPyUltUhrFQ1BW6+GNY74rPiSc+cs4RRtc56YFaSEFOoYrFLN1KfAKIySm7qHhf8+mG+m79SJn1J9I7+eoY5+YndORIgt2UD9FmAfHrAY5miD4ZN9qBTPdAaZ0qHnOF53z7ckSgszC01CTrbJD7l2ZZ+qhgRLuucrkAxSlDpeNbWPHDgPlMHjAMy2W7jjHf8F9NmnrZkoY0AwsYMAAxchVzkh+V85pu9JzGS2Vn4ktgHBb0nqYd6Eh5vQLs+IZWuPRTxt3VCUXiYXBKD0etfGuDNvaUtu1i9MR4NoAuMlPfV01hHii0RNogV76Sex0avgTfObBSJ8YXpoyYsXLqk1Spd/AY4EwVrT7F/dtr/QpRv2ZSBD1N4rzeftPm5biGoSQhHzJPgNmm4AsFC0NCfRxOWldDblPCNm23hi0x/b7mJQkRVYgfqyoCvlYOg9h9xY+enxPqQPN2YDRWXD7B8LgeDGL4h5V5vjQY/uLGSUbn4WKVd9DL3lMcLEJzXDttA9gu4sRpVjqsmYG9T0RUAnfSsdaKI+XrY/tlTzDSIH+RBp0E4mwtnKkraMBDVYzHMec3NZjffv0sN0EW+j4UxB0wDyLGPd0QYuRg5mDIzEpNhX/YqvdW6rfGgI9E2fM37aXhVg=
