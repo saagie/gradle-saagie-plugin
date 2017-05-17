@@ -56,6 +56,7 @@ saagie {
     name = <job_name>
     type = <job_type>
     category = <job_category>
+    language = <job_language>
     languageVersion = <language_version>
     sparkVersion = <spark_version>
     cpu = <job_cpu>
@@ -112,6 +113,11 @@ saagie {
     - type: **string**
     - default: extract
     - accepted values: extract, processing
+
+* **language**
+    - job's language
+    - type: **string**
+    - default: java
 
 * **languageVersion**
     - job's language version

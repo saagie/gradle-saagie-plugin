@@ -6,4 +6,5 @@ package io.saagie.plugin
 interface JobType {
     String JAVA_SCALA = "java-scala"
     String SPARK = "spark"
+    String PYTHON = "python"
 }

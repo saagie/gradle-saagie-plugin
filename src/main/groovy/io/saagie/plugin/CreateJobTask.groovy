@@ -48,17 +48,28 @@ class CreateJobTask extends DefaultTask {
                 logger.info("Id: ${saagieClient.createJob(body)}")
                 break
             case JobType.SPARK:
-                current
-                        .put("template", "spark-submit --class=$configuration.mainClass {file} $configuration.arguments")
+                if (configuration.language == 'java') {
+                    current
+                            .put("template", "spark-submit --class=$configuration.mainClass {file} $configuration.arguments")
+                } else {
+                    current
+                            .put("template", "spark-submit --py-files={file} \$MESOS_SANDBOX/__main__.py $configuration.arguments")
+                }
                 options
                         .put("language_version", configuration.sparkVersion)
-                        .put("extra_language", "java")
+                        .put("extra_language", configuration.language)
                         .put("extra_version", configuration.languageVersion)
                 if (configuration.streaming) {
                     body.put("streaming", true)
                 }
                 logger.info(body.toString(4))
                 logger.info("Id: ${saagieClient.createJob(body)}")
+                break
+            case JobType.PYTHON:
+                current
+                        .put("template", "python {file} $configuration.arguments")
+                options
+                        .put("language_version", configuration.languageVersion)
                 break
             default:
                 throw new UnsupportedOperationException("$configuration.type is currently not supported.")

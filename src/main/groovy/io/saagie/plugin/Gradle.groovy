@@ -29,6 +29,7 @@ class SaagiePluginProperties {
     String name = ''
     String type = 'java-scala'
     String category = 'extract'
+    String language = 'java'
     String languageVersion = '8.121'
     String sparkVersion = '2.1.0'
     float cpu = 0.3
