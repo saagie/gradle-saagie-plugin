@@ -46,6 +46,7 @@ artifacts {
 }
 
 signing {
+    required signatory != null
     sign configurations.archives
 }
 
