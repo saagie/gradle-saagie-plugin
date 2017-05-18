@@ -66,10 +66,12 @@ class CreateJobTask extends DefaultTask {
                 logger.info("Id: ${saagieClient.createJob(body)}")
                 break
             case JobType.PYTHON:
+                logger.info("Python job.")
                 current
                         .put("template", "python {file} $configuration.arguments")
                 options
                         .put("language_version", configuration.languageVersion)
+                logger.info("Id: ${saagieClient.createJob(body)}")
                 break
             default:
                 throw new UnsupportedOperationException("$configuration.type is currently not supported.")

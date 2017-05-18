@@ -49,6 +49,23 @@ signing {
     sign configurations.archives
 }
 
+release {
+    newVersionCommitMessage = '[skip CI] new version commit:'
+}
+
+task mergeToDevelop(type: Exec) {
+    description 'Merge master to develop'
+    commandLine 'git', 'merge', 'master'
+}
+
+task switchToDevelop(type: Exec) {
+    description 'Checkout develop'
+    commandLine 'git', 'checkout', 'develop'
+}
+
+mergeToDevelop.dependsOn switchToDevelop
+updateVersion.dependsOn mergeToDevelop
+
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -57,7 +74,6 @@ uploadArchives {
             repository(url: "https://oss.sonatype.org/${project.version.endsWith('-SNAPSHOT') ? 'content/repositories/snapshots' : 'service/local/staging/deploy/maven2'}") {
                 authentication(userName: System.getProperty("SONATYPE_USERNAME", "admin"), password: System.getProperty("SONATYPE_PASSWORD", 'admin123'))
             }
-
 
             pom.project {
                 name project.name
@@ -89,3 +105,5 @@ uploadArchives {
         }
     }
 }
+
+afterReleaseBuild.dependsOn uploadArchives
