@@ -73,7 +73,7 @@ uploadArchives {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
             repository(url: "https://oss.sonatype.org/${project.version.endsWith('-SNAPSHOT') ? 'content/repositories/snapshots' : 'service/local/staging/deploy/maven2'}") {
-                authentication(userName: System.getProperty("SONATYPE_USERNAME", "admin"), password: System.getProperty("SONATYPE_PASSWORD", 'admin123'))
+                authentication(userName: nexusName, password: nexusPassword)
             }
 
             pom.project {
