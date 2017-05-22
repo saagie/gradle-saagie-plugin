@@ -21,6 +21,10 @@ before_install:
   - export PATH=$GRADLE_HOME/bin:$PATH
 script:
   - gradle test --stacktrace
+  - if [ ${TRAVIS_BRANCH} = "master" ]; then
+      git checkout master;
+      gradle release -Prelease.useAutomaticVersion=true;
+    fi
   - gradle uploadArchive --info --stacktrace
 env:
   global:
