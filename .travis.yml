@@ -23,9 +23,10 @@ script:
   - gradle test --stacktrace
   - if [ ${TRAVIS_BRANCH} = "master" ]; then
       git checkout master;
-      gradle release -Prelease.useAutomaticVersion=true;
+      gradle release -Prelease.useAutomaticVersion=true --stacktrace --info;
+    else
+      gradle uploadArchive --info --stacktrace
     fi
-  - gradle uploadArchive --info --stacktrace
 env:
   global:
   - secure: lq8Na892LjfpLD642K36luhbhqAyz9LN0v0tIvXBF6SpNqLcym+oZYShs4FD2IB0+UI6KPqjhWbH82ebZjjo7on7wb0p/q+BO03b0ND7VQL0XkorgfDqIUUaKsxBTv6u52p7D0Pj+STIpiwv/UMjxL61Kbo7aSONcXemwnn7uFJzenl/7PaqvQNMTbNaHIa8RzHV3Rt/lv0Vv3ixyhfw84cAlqrh/9stkGJG0UsHKG+wWeXjOVOA0BXx61XT2KyVoRVfmMC2W9ubyADxw/cZ2A+ekejUuebCpn0w0wptWYOluk+uLmSgW4TNkqnPHRi9RIgcOOVqlH5e8bE2aqsNO6EJ471e4KQqLzjiWkHLXisHPtyYiMke9M2ubCBwchI6qLt7AswlShgunDD3FoVdnYMmvz0Odql0dyfdgtI7kuA8ub/AS8JEBs0wVeGv/S2Z2fL+0jdbGH7DQgrFeAulQaXIwLaxb1ai0d3ly03Hq7FBOhj8LOD8/MsqDrBXmv/cxgnTNSdA5I4LFMfLPSeuZ4mtPGoc23BbDnUGbTLzglplVyHPGortsfyxWl7JtrfNZeGs87BkQDRRmsgq5XYwB07tdzvPSDXHVyC3r9ZxwCNyqtFoxyY1ePZX6I9aflsQXvkQTt8bGtqyHUPU7qCCRFCNB+/tp1o6wPwQD64NYgI=
