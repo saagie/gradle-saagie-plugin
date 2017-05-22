@@ -52,6 +52,7 @@ signing {
 
 release {
     newVersionCommitMessage = '[skip CI] new version commit:'
+    failOnCommitNeeded = false
 }
 
 task mergeToDevelop(type: Exec) {
