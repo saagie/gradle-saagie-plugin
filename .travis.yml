@@ -8,9 +8,10 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 before_install:
-  - openssl aes-256-cbc -K $encrypted_837e0722fe3d_key -iv $encrypted_837e0722fe3d_iv -in id_rsa_travis.enc -out ~/.ssh/id_rsa -d
+  - openssl aes-256-cbc -K $encrypted_837e0722fe3d_key -iv $encrypted_837e0722fe3d_iv -in keys.tar.enc -out keys.tar -d
+  - tar xvf keys.tar
+  - mv id_rsa_travis ~/.ssh/id_rsa
   - chmod 600 ~/.ssh/id_rsa
-  - openssl aes-256-cbc -K $encrypted_837e0722fe3d_key -iv $encrypted_837e0722fe3d_iv -in secring.gpg.enc -out secring.gpg -d
   - echo signing.password=$gpg_pass >> gradle.properties
   - echo nexusName=$SONATYPE_USERNAME >> gradle.properties
   - echo nexusPassword=$SONATYPE_PASSWORD >> gradle.properties

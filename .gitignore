@@ -60,3 +60,5 @@ crashlytics-build.properties
 fabric.properties
 .idea
 secring.gpg
+id_rsa_travis
+keys.tar
