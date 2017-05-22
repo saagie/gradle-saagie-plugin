@@ -8,13 +8,15 @@ cache:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
 before_install:
+  - git config --global user.email "erwan@saagie.com"
+  - git config --global user.name "erwan"
   - openssl aes-256-cbc -K $encrypted_837e0722fe3d_key -iv $encrypted_837e0722fe3d_iv -in keys.tar.enc -out keys.tar -d
   - tar xvf keys.tar
   - mv id_rsa_travis ~/.ssh/id_rsa
   - chmod 600 ~/.ssh/id_rsa
-  - echo signing.password=$gpg_pass >> gradle.properties
-  - echo nexusName=$SONATYPE_USERNAME >> gradle.properties
-  - echo nexusPassword=$SONATYPE_PASSWORD >> gradle.properties
+  - echo signing.password=$gpg_pass >> ~/.gradle/gradle.properties
+  - echo nexusName=$SONATYPE_USERNAME >> ~/.gradle/gradle.properties
+  - echo nexusPassword=$SONATYPE_PASSWORD >> ~/.gradle/gradle.properties
   - wget http://services.gradle.org/distributions/gradle-3.5-bin.zip
   - unzip gradle-3.5-bin.zip
   - export GRADLE_HOME=$PWD/gradle-3.5
