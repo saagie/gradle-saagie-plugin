@@ -51,8 +51,8 @@ signing {
 }
 
 release {
-    preTagCommitMessage = '[skip CI] pre tag commit:'
-    newVersionCommitMessage = '[skip CI] new version commit:'
+    preTagCommitMessage = '[ci skip] pre tag commit:'
+    newVersionCommitMessage = '[ci skip] new version commit:'
 }
 
 task mergeToDevelop(type: Exec) {
