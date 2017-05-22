@@ -51,6 +51,7 @@ signing {
 }
 
 release {
+    preTagCommitMessage = '[skip CI] pre tag commit:'
     newVersionCommitMessage = '[skip CI] new version commit:'
 }
 
