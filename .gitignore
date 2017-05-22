@@ -62,3 +62,6 @@ fabric.properties
 secring.gpg
 id_rsa_travis
 keys.tar
+
+gradle-3.5/
+gradle-3.5-bin.zip
