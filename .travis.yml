@@ -14,6 +14,7 @@ before_install:
   - tar xvf keys.tar
   - mv id_rsa_travis ~/.ssh/id_rsa
   - chmod 600 ~/.ssh/id_rsa
+  - cp -fv config ~/.ssh/config
   - echo signing.password=$gpg_pass >> ~/.gradle/gradle.properties
   - echo nexusName=$SONATYPE_USERNAME >> ~/.gradle/gradle.properties
   - echo nexusPassword=$SONATYPE_PASSWORD >> ~/.gradle/gradle.properties
