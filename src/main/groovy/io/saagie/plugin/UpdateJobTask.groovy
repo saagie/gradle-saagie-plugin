@@ -19,15 +19,17 @@ class UpdateJobTask extends DefaultTask {
 
         JSONObject job = saagieClient.checkJobExists()
         logger.info(job.toString(4))
-        String fileName = saagieClient.uploadFile(configuration.target, configuration.fileName)
         job.put("email", configuration.email)
         JSONObject current = job.getJSONObject("current")
         current
-                .put("file", fileName)
                 .put("releaseNote", configuration.releaseNote)
                 .put("cpu", configuration.cpu)
                 .put("memory", configuration.memory)
                 .put("disk", configuration.disk)
+        if (configuration.type != JobType.SQOOP) {
+            String fileName = saagieClient.uploadFile(configuration.target, configuration.fileName)
+            current.put("file", fileName)
+        }
         switch (configuration.type) {
             case JobType.JAVA_SCALA:
                 current
@@ -54,6 +56,18 @@ class UpdateJobTask extends DefaultTask {
                         .put("template", "python {file} $configuration.arguments")
                 current.getJSONObject("options")
                         .put("language_version", configuration.languageVersion)
+                break
+            case JobType.R:
+                current
+                        .put("template", "Rscript {file} $configuration.arguments")
+                break
+            case JobType.TALEND:
+                current
+                        .put("template", "sh {file} $configuration.arguments")
+                break
+            case JobType.SQOOP:
+                current
+                        .put("template", configuration.template)
                 break
             default:
                 throw new UnsupportedOperationException("$configuration.type is currently not supported.")

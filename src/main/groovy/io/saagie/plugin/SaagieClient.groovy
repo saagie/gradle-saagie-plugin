@@ -81,7 +81,7 @@ class SaagieClient {
         if (response.status != 200 && response.status != 201) {
             throw new GradleException("Error during job creation(ErrorCode: $response.status)")
         } else {
-            logger.info("Job updated. {}", response.body.object.toString(4))
+            logger.info("Job updated. ${response.body.object.toString(4)}")
         }
 
     }

@@ -1,5 +1,7 @@
 plugins {
     id 'net.researchgate.release' version '2.4.0'
+    id 'io.codearte.nexus-staging' version '0.8.0'
+    id 'com.gradle.plugin-publish' version '0.9.7'
 }
 
 apply plugin: 'groovy'
@@ -14,7 +16,7 @@ version version
 description 'Gradle plugin to automatically upload archives into a specified platform and create or update jobs'
 
 repositories {
-    mavenCentral()
+    jcenter()
 }
 
 dependencies {

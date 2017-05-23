@@ -43,4 +43,5 @@ class SaagiePluginProperties {
     String description = ''
     String releaseNote = ''
     String email = ''
+    String template = ''
 }

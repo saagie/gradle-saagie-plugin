@@ -45,7 +45,8 @@ class GradleTest {
                 'arguments'      : '',
                 'description'    : '',
                 'releaseNote'    : '',
-                'email'          : ''
+                'email'          : '',
+                'template'       : ''
         ]
         SaagiePluginProperties saagieproperties = new SaagiePluginProperties()
         saagieproperties.properties.each {

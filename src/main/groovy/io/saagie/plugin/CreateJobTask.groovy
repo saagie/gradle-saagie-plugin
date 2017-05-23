@@ -13,13 +13,15 @@ class CreateJobTask extends DefaultTask {
     @TaskAction
     def createJob() {
         logger.info("Create Job.")
+        if(configuration.type == JobType.SQOOP && configuration.category == JobCategory.PROCESSING) {
+            throw new UnsupportedOperationException("Can't create SQOOP job in processing category.")
+        }
         SaagieClient saagieClient = new SaagieClient(configuration)
 
         saagieClient.getManagerStatus()
 
         JSONObject options = new JSONObject()
         JSONObject current = new JSONObject()
-                .put("file", configuration.fileName)
                 .put("options", options)
                 .put("cpu", configuration.cpu)
                 .put("memory", configuration.memory)
@@ -34,18 +36,19 @@ class CreateJobTask extends DefaultTask {
                 .put("manual", true)
                 .put("name", configuration.name)
                 .put("retry", "")
-                .put("schedule", "R0/2016-07-06T15:47:52.051Z/P0Y0M1DT0H0M0S")
-        String fileName = saagieClient.uploadFile(configuration.target, configuration.fileName)
-        logger.info("File: $fileName uploaded.")
-        current.put("file", fileName)
+                .put("schedule", "R0/2017-05-23T13:59:05.587Z/P0Y0M1DT0H0M0S")
+        if (configuration.type != JobType.SQOOP) {
+            String fileName = saagieClient.uploadFile(configuration.target, configuration.fileName)
+            current.put("file", fileName)
+            logger.info("File: $fileName uploaded.")
+        }
+        logger.info("$configuration.type job.")
         switch (configuration.type) {
             case JobType.JAVA_SCALA:
                 current
                         .put("template", "java -jar {file} $configuration.arguments")
                 options
                         .put("language_version", configuration.languageVersion)
-                logger.info(body.toString(4))
-                logger.info("Id: ${saagieClient.createJob(body)}")
                 break
             case JobType.SPARK:
                 if (configuration.language == 'java') {
@@ -62,19 +65,29 @@ class CreateJobTask extends DefaultTask {
                 if (configuration.streaming) {
                     body.put("streaming", true)
                 }
-                logger.info(body.toString(4))
-                logger.info("Id: ${saagieClient.createJob(body)}")
                 break
             case JobType.PYTHON:
-                logger.info("Python job.")
                 current
                         .put("template", "python {file} $configuration.arguments")
                 options
                         .put("language_version", configuration.languageVersion)
-                logger.info("Id: ${saagieClient.createJob(body)}")
+                break
+            case JobType.R:
+                current
+                        .put("template", "Rscript {file} $configuration.arguments")
+                break
+            case JobType.TALEND:
+                current
+                        .put("template", "sh {file} $configuration.arguments")
+                break
+            case JobType.SQOOP:
+                current
+                        .put("template", configuration.template)
                 break
             default:
                 throw new UnsupportedOperationException("$configuration.type is currently not supported.")
         }
+        logger.info(body.toString(4))
+        logger.info("Id: ${saagieClient.createJob(body)}")
     }
 }
