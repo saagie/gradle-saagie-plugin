@@ -1,8 +1,9 @@
 [![Build Status](https://travis-ci.org/saagie/gradle-saagie-plugin.svg?branch=master)](https://travis-ci.org/saagie/gradle-saagie-plugin)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.saagie/gradle-saagie-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.saagie/gradle-saagie-plugin)
 
 # gradle-saagie-plugin
 
-A Gradle plugin to push archives to Saagie Datafabric and create or update jobs.
+A Gradle plugin to create and update jobs to Saagie Datafabric.
  
 More informations about Saagie: https://www.saagie.com
 
@@ -13,13 +14,10 @@ Buildscript snippets:
 ```
 buildscript {
        repositories {
-           mavenCentral()
-           maven {
-               url uri('../repo') //TODO: Release repo
-           }
+           jcenter()
        }
        dependencies {
-           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.0-SNAPSHOT' //TODO: release version
+           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.3'
        }
    }
    
@@ -28,7 +26,7 @@ buildscript {
 <!--
 ```
 plugins {
-  id 'io.saagie.gradle-saagie-plugin' version '1.0.0-SNAPSHOT'
+  id 'io.saagie.gradle-saagie-plugin' version '1.0.3'
 }
 ```
 -->
@@ -70,6 +68,7 @@ saagie {
     description = <job_description>
     releaseNote = <job_release_note>
     email = <job_email_notification>
+    template = <command_template>
 }
 ```
 ---
@@ -183,3 +182,22 @@ saagie {
     - Email used for job's notifications
     - type: **string**
     - default:
+
+* **template**
+    - Script command (only for SQOOP jobs)
+    - type: **string**
+    - default:
+
+## Changelog
+
+#### 1.0.3
+* Support for R, SQOOP, and Talend jobs
+
+#### 1.0.2
+* Release to Maven Central and minor bugs corrections
+
+#### 1.0.1
+* Support for Python jobs
+
+#### 1.0.0
+* Initial release support for Java/Scala jobs 
