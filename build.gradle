@@ -75,10 +75,7 @@ uploadArchives {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            /*repository(url: "https://oss.sonatype.org/${project.version.endsWith('-SNAPSHOT') ? 'content/repositories/snapshots' : 'service/local/staging/deploy/maven2'}") {
-                authentication(userName: project.findProperty('nexusName') ?: '', password: project.findProperty('nexusPassword') ?: '')
-            }*/
-            repository(url: "http://localhost:8081/nexus/${project.version.endsWith('-SNAPSHOT') ? 'content/repositories/snapshots' : 'service/local/staging/deploy/maven2'}") {
+            repository(url: "https://oss.sonatype.org/${project.version.endsWith('-SNAPSHOT') ? 'content/repositories/snapshots' : 'service/local/staging/deploy/maven2'}") {
                 authentication(userName: project.findProperty('nexusName') ?: '', password: project.findProperty('nexusPassword') ?: '')
             }
             pom.project {
@@ -114,3 +111,7 @@ uploadArchives {
 }
 
 afterReleaseBuild.dependsOn uploadArchives
+
+nexusStaging {
+    packageGroup = "org.saagie.gradle-saagie-plugin"
+}
