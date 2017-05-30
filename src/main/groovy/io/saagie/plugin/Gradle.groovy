@@ -1,5 +1,9 @@
 package io.saagie.plugin
 
+import io.saagie.plugin.jobs.CreateJobTask
+import io.saagie.plugin.jobs.ExportJobTask
+import io.saagie.plugin.jobs.ImportJobTask
+import io.saagie.plugin.jobs.UpdateJobTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -17,15 +21,26 @@ class Gradle implements Plugin<Project> {
         project.task('updateJob', type: UpdateJobTask) {
             configuration = project.saagie
         }
+
+        project.task('exportJob', type: ExportJobTask) {
+            configuration = project.saagie
+        }
+
+        project.task('importJob', type: ImportJobTask) {
+            configuration = project.saagie
+        }
     }
 }
 
-class SaagiePluginProperties {
+class Server {
     String url = 'https://manager.prod.saagie.io/api/v1'
     String login = ''
     String password = ''
     String platform = ''
-    int job = 0
+}
+
+class Job {
+    int id = 0
     String name = ''
     String type = 'java-scala'
     String category = 'extract'
@@ -36,12 +51,27 @@ class SaagiePluginProperties {
     int memory = 512
     int disk = 512
     boolean streaming = false
-    String target = ''
-    String fileName = ''
     String mainClass = ''
     String arguments = ''
     String description = ''
     String releaseNote = ''
     String email = ''
     String template = ''
+}
+
+class SaagiePluginProperties {
+    Server server = new Server()
+    Job job = new Job()
+    String target = ''
+    String fileName = ''
+    String exportFile = ''
+    String importFile = ''
+
+    Object server(Closure closure) {
+        server.with(closure)
+    }
+
+    Object job(Closure closure) {
+        job.with(closure)
+    }
 }

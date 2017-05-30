@@ -4,13 +4,19 @@ import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
 import org.gradle.api.GradleException
+import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 
 /**
  * Created by ekoffi on 5/15/17.
@@ -25,33 +31,24 @@ class SaagieClient {
     }
 
     void getManagerStatus() {
-        Future<HttpResponse<JsonNode>> future = Unirest.get("$configuration.url/platform/$configuration.platform")
-                .basicAuth(configuration.login, configuration.password)
+        Future<HttpResponse<JsonNode>> future = Unirest.get("${configuration.server.url}/platform/${configuration.server.platform}")
+                .basicAuth(configuration.server.login, configuration.server.password)
                 .asJsonAsync()
         HttpResponse<JsonNode> response = future.get(10, TimeUnit.SECONDS)
         logger.info("Platform status: $response.status")
     }
 
-    int createJob(JSONObject body) {
-        logger.info("Create Job.")
-        Future<HttpResponse<JsonNode>> future = Unirest.post("$configuration.url/platform/$configuration.platform/job")
-                .basicAuth(configuration.login, configuration.password)
-                .body(body)
-                .asJsonAsync()
-        HttpResponse<JsonNode> response = future.get(10, TimeUnit.SECONDS)
-        if (response.status != 200) {
-            throw new GradleException("Error during job creation(ErrorCode: $response.status)")
-        } else {
-            return response.body.object.getInt("id")
-        }
-    }
-
-    String uploadFile(String path, String fileName) {
+    /**
+     * Upload given file to platform.
+     * @param path
+     * @return The file name on the platform.
+     */
+    String uploadFile(Path path) {
         logger.info("Upload file.")
-        File file = Paths.get(path, fileName).toFile()
+        File file = path.toFile()
         logger.info("File: {}", file.toString())
-        Future<HttpResponse<JsonNode>> future = Unirest.post("$configuration.url/platform/$configuration.platform/job/upload")
-                .basicAuth(configuration.login, configuration.password)
+        Future<HttpResponse<JsonNode>> future = Unirest.post("$configuration.server.url/platform/$configuration.server.platform/job/upload")
+                .basicAuth(configuration.server.login, configuration.server.password)
                 .field("file", file, "multipart/form-data")
                 .asJsonAsync()
         HttpResponse<JsonNode> response = future.get(60, TimeUnit.SECONDS)
@@ -62,19 +59,29 @@ class SaagieClient {
         }
     }
 
-    JSONObject checkJobExists() {
-        logger.debug("Check job {} exists", configuration.job)
-        Future<HttpResponse<JsonNode>> future = Unirest.get("$configuration.url/platform/$configuration.platform/job/$configuration.job")
-                .basicAuth(configuration.login, configuration.password)
+    /**
+     * Create job on platform.
+     * @param body the request body, should comply with current api version.
+     * @return The id of the newly created job
+     */
+    int createJob(JSONObject body) {
+        logger.info("Create Job.")
+        Future<HttpResponse<JsonNode>> future = Unirest.post("$configuration.server.url/platform/$configuration.server.platform/job")
+                .basicAuth(configuration.server.login, configuration.server.password)
+                .body(body)
                 .asJsonAsync()
         HttpResponse<JsonNode> response = future.get(10, TimeUnit.SECONDS)
-        return response.body.object
+        if (response.status != 200) {
+            throw new GradleException("Error during job creation(ErrorCode: $response.status)")
+        } else {
+            return response.body.object.getInt("id")
+        }
     }
 
     void updateJob(JSONObject job) {
         logger.info("Update Job.")
-        Future<HttpResponse<JsonNode>> future = Unirest.post("$configuration.url/platform/$configuration.platform/job/$configuration.job/version")
-                .basicAuth(configuration.login, configuration.password)
+        Future<HttpResponse<JsonNode>> future = Unirest.post("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version")
+                .basicAuth(configuration.server.login, configuration.server.password)
                 .body(job)
                 .asJsonAsync()
         HttpResponse<JsonNode> response = future.get(10, TimeUnit.SECONDS)
@@ -84,5 +91,80 @@ class SaagieClient {
             logger.info("Job updated. ${response.body.object.toString(4)}")
         }
 
+    }
+
+    JSONObject checkJobExists() {
+        logger.debug("Check job {} exists", configuration.job)
+        Future<HttpResponse<JsonNode>> future = Unirest.get("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id")
+                .basicAuth(configuration.server.login, configuration.server.password)
+                .asJsonAsync()
+        HttpResponse<JsonNode> response = future.get(10, TimeUnit.SECONDS)
+        return response.body.object
+    }
+
+    void createArchive() {
+        logger.info("Archives a job.")
+        JSONObject job = checkJobExists()
+        if (job.length() == 0) {
+            throw new GradleException("Job does not exists.")
+        }
+        logger.info(job.toString(4))
+        File path = new File(configuration.target, configuration.exportFile)
+        path.mkdir()
+        new File(path.toString(), "settings.json").write(job.toString(4))
+        job.getJSONArray("versions").each {
+            int version = ((JSONObject) it).getInt('number')
+            String fileName = ((JSONObject) it).getString('file')
+            Future<HttpResponse<InputStream>> future = Unirest.get("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version/$version/binary")
+                    .basicAuth(configuration.server.login, configuration.server.password)
+                    .asBinaryAsync()
+            HttpResponse<InputStream> response = future.get(10, TimeUnit.SECONDS)
+            new File(path.toString(), "$version-$fileName").bytes = response.rawBody.bytes
+        }
+        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File(configuration.target, "${configuration.exportFile}.zip")))
+        path.eachFile { file ->
+            zip.putNextEntry(new ZipEntry(file.getName()))
+            zip.write(file.readBytes())
+        }
+        zip.closeEntry()
+        zip.close()
+        path.deleteDir()
+    }
+
+    void importArchive() {
+        logger.info("Import archive.")
+        ZipFile zip = new ZipFile(new File(configuration.target, configuration.importFile))
+        JSONObject settings = new JSONObject(zip.getInputStream(zip.getEntry("settings.json")).text)
+        settings.remove("id")
+        settings.remove("platform_id")
+        settings.remove("last_state")
+        settings.remove("last_instance")
+        settings.remove("workflows")
+        JSONArray versions = settings.getJSONArray("versions")
+        settings.remove("versions")
+        settings.remove("current")
+        def first = true
+        versions.each { JSONObject version ->
+            def prefix = version.getInt("number")
+            def fileName = version.getString("file")
+            def file = zip.getInputStream(zip.getEntry("$prefix-${version.getString("file")}"))
+            version.remove("id")
+            version.remove("number")
+            version.remove("creation_date")
+            settings.put("current", version)
+            def path = Files.write(Paths.get("$fileName"), file.bytes)
+            file.close()
+            fileName = uploadFile(path)
+            version.put("file", fileName)
+            path.deleteDir()
+            logger.info(settings.toString(4))
+            if (first) {
+                configuration.job.id = createJob(settings)
+                first = false
+            } else {
+                updateJob(settings)
+            }
+        }
+        zip.close()
     }
 }

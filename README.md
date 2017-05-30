@@ -1,9 +1,10 @@
 [![Build Status](https://travis-ci.org/saagie/gradle-saagie-plugin.svg?branch=master)](https://travis-ci.org/saagie/gradle-saagie-plugin)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.saagie/gradle-saagie-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.saagie/gradle-saagie-plugin)
+[![Download](https://api.bintray.com/packages/bintray/jcenter/io.saagie%3Agradle-saagie-plugin/images/download.svg) ](https://bintray.com/bintray/jcenter/io.saagie%3Agradle-saagie-plugin/_latestVersion)
 
 # gradle-saagie-plugin
 
-A Gradle plugin to create and update jobs to Saagie Datafabric.
+A Gradle plugin to create, update, export and import jobs to Saagie Datafabric.
  
 More informations about Saagie: https://www.saagie.com
 
@@ -33,45 +34,53 @@ plugins {
 
 ## Usage
 
-To create a job:
-```
-gradle createJob
-```
+The following tasks are available:
 
-To update a job:
-```
-gradle updateJob
-```
+| Tasks     | Description                                          |
+|-----------|------------------------------------------------------|
+| createJob | Creates a new job.                                   |
+| updateJob | Updates a job.                                       |
+| exportJob | Export a job from the platform into a local archive. |
+| importJob | Creates a job from a local archive.                  |
 
 ## Configuration
 ```
 saagie {
-    url = <platform_url>
-    login = <login>
-    password = <password>
-    platform = <platform_id>
-    job = <job_id>
-    name = <job_name>
-    type = <job_type>
-    category = <job_category>
-    language = <job_language>
-    languageVersion = <language_version>
-    sparkVersion = <spark_version>
-    cpu = <job_cpu>
-    memory = <job_memory>
-    disk = <job disk>
-    streaming = <streaming_flag>
+    server {
+        url = <platform_url>
+        login = <login>
+        password = <password>
+        platform = <platform_id>
+    }
+    
+    job {
+        id = <job_id>
+        name = <job_name>
+        type = <job_type>
+        category = <job_category>
+        language = <job_language>
+        languageVersion = <language_version>
+        sparkVersion = <spark_version>
+        cpu = <job_cpu>
+        memory = <job_memory>
+        disk = <job disk>
+        streaming = <streaming_flag>
+        mainClass = <spark_main_class>
+        arguments = <job_arguments>
+        description = <job_description>
+        releaseNote = <job_release_note>
+        email = <job_email_notification>
+        template = <command_template>
+    }
+    
     target = <archive_local_path>
     fileName = <archive_name>
-    mainClass = <spark_main_class>
-    arguments = <job_arguments>
-    description = <job_description>
-    releaseNote = <job_release_note>
-    email = <job_email_notification>
-    template = <command_template>
+    exportFile = ''
+    importFile = ''
 }
 ```
 ---
+### server
 * **url**
     - url of the manager
     - type: **string**
@@ -91,11 +100,13 @@ saagie {
     - Platform id
     - type: **string**
     - default:
-    
-* **job**
+
+### job
+* **id**
     - job id on DataFabric for job update
     - type: **int**
     - default: 0
+
 * **name**
     - job name
     - type: **string**
@@ -148,16 +159,6 @@ saagie {
     - type: **boolean**
     - default: false
 
-* **target**
-    - archive local path
-    - type: **string**
-    - default:
-
-* **fileName**
-    - archive file name
-    - type: **string**
-    - default:
-
 * **mainClass**
     - Main class, used for Spark jobs
     - type: **string**
@@ -188,10 +189,33 @@ saagie {
     - type: **string**
     - default:
 
+### saagie
+
+* **target**
+    - archive local path
+    - type: **string**
+    - default:
+
+* **fileName**
+    - archive file name
+    - type: **string**
+    - default:
+
+* **exportFile**
+    - archive file name
+    - type: **string**
+    - default:
+
+* **importFile**
+    - archive file name
+    - type: **string**
+    - default:
+
 ## Changelog
 
 #### 1.0.3
 * Support for R, SQOOP, and Talend jobs
+* Import and export jobs
 
 #### 1.0.2
 * Release to Maven Central and minor bugs corrections
