@@ -59,13 +59,18 @@ class Job {
     String template = ''
 }
 
+class Packaging {
+    String exportFile = ''
+    String importFile = ''
+    boolean currentOnly = true
+}
+
 class SaagiePluginProperties {
     Server server = new Server()
     Job job = new Job()
+    Packaging packaging = new Packaging()
     String target = ''
     String fileName = ''
-    String exportFile = ''
-    String importFile = ''
 
     Object server(Closure closure) {
         server.with(closure)
@@ -73,5 +78,9 @@ class SaagiePluginProperties {
 
     Object job(Closure closure) {
         job.with(closure)
+    }
+
+    Object packaging(Closure closure) {
+        packaging.with(closure)
     }
 }

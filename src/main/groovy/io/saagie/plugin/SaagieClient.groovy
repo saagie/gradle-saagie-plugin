@@ -109,10 +109,12 @@ class SaagieClient {
             throw new GradleException("Job does not exists.")
         }
         logger.info(job.toString(4))
-        File path = new File(configuration.target, configuration.exportFile)
+        File path = new File(configuration.target, configuration.packaging.exportFile)
         path.mkdir()
         new File(path.toString(), "settings.json").write(job.toString(4))
-        job.getJSONArray("versions").each {
+        job.getJSONArray("versions").findAll {
+            (!configuration.packaging.currentOnly || ((JSONObject) it).getInt("number") == job.getJSONObject("current").getInt("number"))
+        } each {
             int version = ((JSONObject) it).getInt('number')
             String fileName = ((JSONObject) it).getString('file')
             Future<HttpResponse<InputStream>> future = Unirest.get("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version/$version/binary")
@@ -121,7 +123,7 @@ class SaagieClient {
             HttpResponse<InputStream> response = future.get(10, TimeUnit.SECONDS)
             new File(path.toString(), "$version-$fileName").bytes = response.rawBody.bytes
         }
-        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File(configuration.target, "${configuration.exportFile}.zip")))
+        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File(configuration.target, "${configuration.packaging.exportFile}.zip")))
         path.eachFile { file ->
             zip.putNextEntry(new ZipEntry(file.getName()))
             zip.write(file.readBytes())
@@ -133,7 +135,7 @@ class SaagieClient {
 
     void importArchive() {
         logger.info("Import archive.")
-        ZipFile zip = new ZipFile(new File(configuration.target, configuration.importFile))
+        ZipFile zip = new ZipFile(new File(configuration.target, configuration.packaging.importFile))
         JSONObject settings = new JSONObject(zip.getInputStream(zip.getEntry("settings.json")).text)
         settings.remove("id")
         settings.remove("platform_id")
@@ -141,10 +143,13 @@ class SaagieClient {
         settings.remove("last_instance")
         settings.remove("workflows")
         JSONArray versions = settings.getJSONArray("versions")
+        JSONObject current = settings.getJSONObject("current")
         settings.remove("versions")
         settings.remove("current")
         def first = true
-        versions.each { JSONObject version ->
+        versions.findAll {
+            (!configuration.packaging.currentOnly || ((JSONObject) it).getInt("number") == current.getInt("number"))
+        } each { JSONObject version ->
             def prefix = version.getInt("number")
             def fileName = version.getString("file")
             def file = zip.getInputStream(zip.getEntry("$prefix-${version.getString("file")}"))

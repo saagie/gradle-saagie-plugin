@@ -73,10 +73,14 @@ saagie {
         template = <command_template>
     }
     
+    packaging {
+        exportFile = ''
+        importFile = ''
+        currentOnly = true
+    }
+    
     target = <archive_local_path>
     fileName = <archive_name>
-    exportFile = ''
-    importFile = ''
 }
 ```
 ---
@@ -189,6 +193,22 @@ saagie {
     - type: **string**
     - default:
 
+### packaging
+* **exportFile**
+    - archive file name
+    - type: **string**
+    - default:
+
+* **importFile**
+    - archive file name
+    - type: **string**
+    - default:
+
+* **currentOnly**
+    - current version flag
+    - type: **boolean**
+    - default: true
+
 ### saagie
 
 * **target**
@@ -197,16 +217,6 @@ saagie {
     - default:
 
 * **fileName**
-    - archive file name
-    - type: **string**
-    - default:
-
-* **exportFile**
-    - archive file name
-    - type: **string**
-    - default:
-
-* **importFile**
     - archive file name
     - type: **string**
     - default:
