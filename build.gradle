@@ -114,4 +114,6 @@ afterReleaseBuild.dependsOn uploadArchives
 
 nexusStaging {
     packageGroup = "org.saagie.gradle-saagie-plugin"
+    username = project.findProperty('nexusName')
+    password = project.findProperty('nexusPassword')
 }
