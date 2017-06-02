@@ -51,7 +51,7 @@ class SaagieClient {
                 .basicAuth(configuration.server.login, configuration.server.password)
                 .field("file", file, "multipart/form-data")
                 .asJsonAsync()
-        HttpResponse<JsonNode> response = future.get(60, TimeUnit.SECONDS)
+        HttpResponse<JsonNode> response = future.get(10, TimeUnit.MINUTES)
         if (response.status != 200) {
             throw new GradleException("Error during job creation(ErrorCode: $response.status)")
         } else {
@@ -112,16 +112,18 @@ class SaagieClient {
         File path = new File(configuration.target, configuration.packaging.exportFile)
         path.mkdir()
         new File(path.toString(), "settings.json").write(job.toString(4))
-        job.getJSONArray("versions").findAll {
-            (!configuration.packaging.currentOnly || ((JSONObject) it).getInt("number") == job.getJSONObject("current").getInt("number"))
-        } each {
-            int version = ((JSONObject) it).getInt('number')
-            String fileName = ((JSONObject) it).getString('file')
-            Future<HttpResponse<InputStream>> future = Unirest.get("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version/$version/binary")
-                    .basicAuth(configuration.server.login, configuration.server.password)
-                    .asBinaryAsync()
-            HttpResponse<InputStream> response = future.get(10, TimeUnit.SECONDS)
-            new File(path.toString(), "$version-$fileName").bytes = response.rawBody.bytes
+        if (job.getString("capsule_code") != 'sqoop') {
+            job.getJSONArray("versions").findAll {
+                (!configuration.packaging.currentOnly || ((JSONObject) it).getInt("number") == job.getJSONObject("current").getInt("number"))
+            } each {
+                int version = ((JSONObject) it).getInt('number')
+                String fileName = ((JSONObject) it).getString('file')
+                Future<HttpResponse<InputStream>> future = Unirest.get("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version/$version/binary")
+                        .basicAuth(configuration.server.login, configuration.server.password)
+                        .asBinaryAsync()
+                HttpResponse<InputStream> response = future.get(10, TimeUnit.MINUTES)
+                new File(path.toString(), "$version-$fileName").bytes = response.rawBody.bytes
+            }
         }
         ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File(configuration.target, "${configuration.packaging.exportFile}.zip")))
         path.eachFile { file ->
@@ -157,11 +159,13 @@ class SaagieClient {
             version.remove("number")
             version.remove("creation_date")
             settings.put("current", version)
-            def path = Files.write(Paths.get("$fileName"), file.bytes)
-            file.close()
-            fileName = uploadFile(path)
-            version.put("file", fileName)
-            path.deleteDir()
+            if (settings.getString('capsule_code') != 'sqoop') {
+                def path = Files.write(Paths.get("$fileName"), file.bytes)
+                file.close()
+                fileName = uploadFile(path)
+                version.put("file", fileName)
+                path.deleteDir()
+            }
             logger.info(settings.toString(4))
             if (first) {
                 configuration.job.id = createJob(settings)
