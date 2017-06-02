@@ -159,11 +159,13 @@ class SaagieClient {
             version.remove("number")
             version.remove("creation_date")
             settings.put("current", version)
-            def path = Files.write(Paths.get("$fileName"), file.bytes)
-            file.close()
-            fileName = uploadFile(path)
-            version.put("file", fileName)
-            path.deleteDir()
+            if (settings.getString('capsule_code') != 'sqoop') {
+                def path = Files.write(Paths.get("$fileName"), file.bytes)
+                file.close()
+                fileName = uploadFile(path)
+                version.put("file", fileName)
+                path.deleteDir()
+            }
             logger.info(settings.toString(4))
             if (first) {
                 configuration.job.id = createJob(settings)
