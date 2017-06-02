@@ -51,7 +51,7 @@ class SaagieClient {
                 .basicAuth(configuration.server.login, configuration.server.password)
                 .field("file", file, "multipart/form-data")
                 .asJsonAsync()
-        HttpResponse<JsonNode> response = future.get(60, TimeUnit.SECONDS)
+        HttpResponse<JsonNode> response = future.get(10, TimeUnit.MINUTES)
         if (response.status != 200) {
             throw new GradleException("Error during job creation(ErrorCode: $response.status)")
         } else {
@@ -120,7 +120,7 @@ class SaagieClient {
             Future<HttpResponse<InputStream>> future = Unirest.get("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version/$version/binary")
                     .basicAuth(configuration.server.login, configuration.server.password)
                     .asBinaryAsync()
-            HttpResponse<InputStream> response = future.get(10, TimeUnit.SECONDS)
+            HttpResponse<InputStream> response = future.get(10, TimeUnit.MINUTES)
             new File(path.toString(), "$version-$fileName").bytes = response.rawBody.bytes
         }
         ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File(configuration.target, "${configuration.packaging.exportFile}.zip")))
