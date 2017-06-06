@@ -40,9 +40,6 @@ class SaagieClient {
 
     SaagieClient(SaagiePluginProperties configuration) {
         this.configuration = configuration
-        if (!configuration.server.proxyHost.isEmpty()) {
-            Unirest.setProxy(new HttpHost(configuration.server.proxyHost, configuration.server.proxyPort))
-        }
         if (configuration.server.acceptSelfSigned) {
             SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, new TrustSelfSignedStrategy() {
                 @Override
@@ -50,12 +47,14 @@ class SaagieClient {
                     true
                 }
             }).build()
-
             CloseableHttpClient closeableHttpClient = HttpClients.custom().setSSLContext(sslContext).setSSLHostnameVerifier(new NoopHostnameVerifier()).build()
             Unirest.setHttpClient(closeableHttpClient)
 
             CloseableHttpAsyncClient closeableHttpAsyncClient = HttpAsyncClients.custom().setSSLContext(sslContext).setSSLHostnameVerifier(new NoopHostnameVerifier()).build()
             Unirest.setAsyncHttpClient(closeableHttpAsyncClient)
+        }
+        if (!configuration.server.proxyHost.isEmpty()) {
+            Unirest.setProxy(new HttpHost(configuration.server.proxyHost, configuration.server.proxyPort))
         }
     }
 
