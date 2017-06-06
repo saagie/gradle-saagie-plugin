@@ -6,9 +6,9 @@ import com.mashape.unirest.http.Unirest
 import org.apache.http.HttpHost
 import org.apache.http.conn.ssl.NoopHostnameVerifier
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy
-import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.client.HttpClients
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder
 import org.apache.http.impl.nio.client.HttpAsyncClients
 import org.apache.http.ssl.SSLContexts
 import org.gradle.api.GradleException
@@ -40,6 +40,11 @@ class SaagieClient {
 
     SaagieClient(SaagiePluginProperties configuration) {
         this.configuration = configuration
+        boolean proxy = !configuration.server.proxyHost.isEmpty()
+        HttpHost httpHost = null
+        if (proxy) {
+            httpHost = new HttpHost(configuration.server.proxyHost, configuration.server.proxyPort)
+        }
         if (configuration.server.acceptSelfSigned) {
             SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, new TrustSelfSignedStrategy() {
                 @Override
@@ -47,14 +52,24 @@ class SaagieClient {
                     true
                 }
             }).build()
-            CloseableHttpClient closeableHttpClient = HttpClients.custom().setSSLContext(sslContext).setSSLHostnameVerifier(new NoopHostnameVerifier()).build()
-            Unirest.setHttpClient(closeableHttpClient)
 
-            CloseableHttpAsyncClient closeableHttpAsyncClient = HttpAsyncClients.custom().setSSLContext(sslContext).setSSLHostnameVerifier(new NoopHostnameVerifier()).build()
-            Unirest.setAsyncHttpClient(closeableHttpAsyncClient)
-        }
-        if (!configuration.server.proxyHost.isEmpty()) {
-            Unirest.setProxy(new HttpHost(configuration.server.proxyHost, configuration.server.proxyPort))
+            HttpClientBuilder httpClientBuilder = HttpClients.custom()
+                    .setSSLContext(sslContext)
+                    .setSSLHostnameVerifier(new NoopHostnameVerifier())
+
+            HttpAsyncClientBuilder httpAsyncClientBuilder = HttpAsyncClients.custom()
+                    .setSSLContext(sslContext)
+                    .setSSLHostnameVerifier(new NoopHostnameVerifier())
+
+            if (proxy) {
+                httpClientBuilder.setProxy(httpHost)
+                httpAsyncClientBuilder.setProxy(httpHost)
+            }
+
+            Unirest.setHttpClient(httpClientBuilder.build())
+            Unirest.setAsyncHttpClient(httpAsyncClientBuilder.build())
+        } else if (proxy) {
+            Unirest.setProxy(httpHost)
         }
     }
 
