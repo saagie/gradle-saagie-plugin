@@ -37,6 +37,9 @@ class Server {
     String login = ''
     String password = ''
     String platform = ''
+    String proxyHost = ''
+    int proxyPort = 0
+    boolean acceptSelfSigned = false
 }
 
 class Job {

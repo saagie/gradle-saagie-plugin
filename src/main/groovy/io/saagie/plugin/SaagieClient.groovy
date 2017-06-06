@@ -3,15 +3,26 @@ package io.saagie.plugin
 import com.mashape.unirest.http.HttpResponse
 import com.mashape.unirest.http.JsonNode
 import com.mashape.unirest.http.Unirest
+import org.apache.http.HttpHost
+import org.apache.http.conn.ssl.NoopHostnameVerifier
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy
+import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient
+import org.apache.http.impl.nio.client.HttpAsyncClients
+import org.apache.http.ssl.SSLContexts
 import org.gradle.api.GradleException
 import org.json.JSONArray
 import org.json.JSONObject
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import javax.net.ssl.SSLContext
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.security.cert.CertificateException
+import java.security.cert.X509Certificate
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
@@ -19,6 +30,7 @@ import java.util.zip.ZipFile
 import java.util.zip.ZipOutputStream
 
 /**
+ * Saagie manager REST API Client
  * Created by ekoffi on 5/15/17.
  */
 class SaagieClient {
@@ -28,6 +40,23 @@ class SaagieClient {
 
     SaagieClient(SaagiePluginProperties configuration) {
         this.configuration = configuration
+        if (!configuration.server.proxyHost.isEmpty()) {
+            Unirest.setProxy(new HttpHost(configuration.server.proxyHost, configuration.server.proxyPort))
+        }
+        if (configuration.server.acceptSelfSigned) {
+            SSLContext sslContext = SSLContexts.custom().loadTrustMaterial(null, new TrustSelfSignedStrategy() {
+                @Override
+                boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    true
+                }
+            }).build()
+
+            CloseableHttpClient closeableHttpClient = HttpClients.custom().setSSLContext(sslContext).setSSLHostnameVerifier(new NoopHostnameVerifier()).build()
+            Unirest.setHttpClient(closeableHttpClient)
+
+            CloseableHttpAsyncClient closeableHttpAsyncClient = HttpAsyncClients.custom().setSSLContext(sslContext).setSSLHostnameVerifier(new NoopHostnameVerifier()).build()
+            Unirest.setAsyncHttpClient(closeableHttpAsyncClient)
+        }
     }
 
     void getManagerStatus() {

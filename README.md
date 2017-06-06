@@ -51,6 +51,9 @@ saagie {
         login = <login>
         password = <password>
         platform = <platform_id>
+        proxyHost = <proxy_host>
+        proxyPort = <proxy_port>
+        acceptSelfSigned = <accept_self_signed>
     }
     
     job {
@@ -102,8 +105,23 @@ saagie {
 
 * **platform**
     - Platform id
+    - type: **int**
+    - default:
+
+* **proxyHost**
+    - Proxy Host
     - type: **string**
     - default:
+
+* **proxyPort**
+    - Proxy Host
+    - type: **int**
+    - default:
+
+* **acceptSelfSigned**
+    - Set to true to accepte self signed certificates
+    - type: **boolean**
+    - default: false
 
 ### job
 * **id**
@@ -225,6 +243,8 @@ saagie {
 
 ### 1.0.6
 * Fixed Job update and Job creation
+* Support for proxies
+* Support for self signed certificates
 
 ### 1.0.5
 * Fixed Job creation
