@@ -34,7 +34,7 @@ class CreateJobTask extends DefaultTask {
                 .put("disk", configuration.job.disk)
                 .put("releaseNote", configuration.job.releaseNote)
         JSONObject body = new JSONObject()
-                .put("platform_id", configuration.platform)
+                .put("platform_id", configuration.server.platform)
                 .put("capsule_code", configuration.job.type)
                 .put("category", configuration.job.category)
                 .put("current", current)

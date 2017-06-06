@@ -18,7 +18,7 @@ buildscript {
            jcenter()
        }
        dependencies {
-           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.3'
+           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.5'
        }
    }
    
@@ -27,7 +27,7 @@ buildscript {
 <!--
 ```
 plugins {
-  id 'io.saagie.gradle-saagie-plugin' version '1.0.3'
+  id 'io.saagie.gradle-saagie-plugin' version '1.0.5'
 }
 ```
 -->
@@ -222,6 +222,13 @@ saagie {
     - default:
 
 ## Changelog
+
+### 1.0.5
+* Fixed Job creation
+
+### 1.0.4
+* Increased timeout for job export.
+* Fix for SQOOP export.
 
 #### 1.0.3
 * Support for R, SQOOP, and Talend jobs
