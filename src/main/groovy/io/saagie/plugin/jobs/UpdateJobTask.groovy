@@ -31,7 +31,7 @@ class UpdateJobTask extends DefaultTask {
                 .put("cpu", configuration.job.cpu)
                 .put("memory", configuration.job.memory)
                 .put("disk", configuration.job.disk)
-        if (configuration.type != JobType.SQOOP) {
+        if (configuration.job.type != JobType.SQOOP) {
             String fileName = saagieClient.uploadFile(Paths.get(configuration.target, configuration.fileName))
             current.put("file", fileName)
         }

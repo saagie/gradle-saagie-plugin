@@ -43,7 +43,7 @@ class CreateJobTask extends DefaultTask {
                 .put("name", configuration.job.name)
                 .put("retry", "")
                 .put("schedule", "R0/2017-05-23T13:59:05.587Z/P0Y0M1DT0H0M0S")
-        if (configuration.type != JobType.SQOOP) {
+        if (configuration.job.type != JobType.SQOOP) {
             String fileName = saagieClient.uploadFile(Paths.get(configuration.target, configuration.fileName))
             current.put("file", fileName)
             logger.info("File: $fileName uploaded.")
