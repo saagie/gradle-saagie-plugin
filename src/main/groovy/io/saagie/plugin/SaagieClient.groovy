@@ -3,9 +3,9 @@ package io.saagie.plugin
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import okhttp3.*
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy
-import org.apache.http.ssl.SSLContexts
 import org.gradle.api.GradleException
+import org.gradle.internal.impldep.org.apache.http.conn.ssl.TrustSelfSignedStrategy
+import org.gradle.internal.impldep.org.apache.http.ssl.SSLContexts
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

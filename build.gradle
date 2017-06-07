@@ -23,7 +23,6 @@ dependencies {
     compile group: 'ch.qos.logback', name: 'logback-classic', version: logback
 
     compile gradleApi()
-    compile group: 'com.mashape.unirest', name: 'unirest-java', version: unirest
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp
 
     testCompile group: 'junit', name: 'junit', version: jUnit
