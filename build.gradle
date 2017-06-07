@@ -26,6 +26,7 @@ dependencies {
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp
 
     testCompile group: 'junit', name: 'junit', version: jUnit
+    testCompile gradleTestKit()
 }
 
 configurations {
@@ -115,4 +116,18 @@ afterReleaseBuild.dependsOn uploadArchives
 nexusStaging {
     username = project.findProperty('nexusName')
     password = project.findProperty('nexusPassword')
+}
+
+pluginBundle {
+    website = 'http://saagie.com'
+    vcsUrl = 'https://github.com/saagie/gradle-saagie-plugin'
+    description = project.description
+    tags = ['saagie', 'data fabric']
+
+    plugins {
+        saagiePlugin {
+            id = 'io.saagie.gradle-saagie-plugin'
+            displayName = 'Graadle Saagie plugin'
+        }
+    }
 }

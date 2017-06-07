@@ -24,13 +24,14 @@ buildscript {
    
    apply plugin: 'io.saagie.gradle-saagie-plugin'
 ```
-<!--
+
+For Gradle 2.1+
 ```
 plugins {
   id 'io.saagie.gradle-saagie-plugin' version '1.0.6'
 }
 ```
--->
+
 
 ## Usage
 
@@ -94,12 +95,12 @@ saagie {
     - default: https://manager.prod.saagie.io/api/v1
 
 * **login**
-    - DataFabric account login
+    - Data Fabric account login
     - type: **string**
     - default:
 
 * **password**
-    - DataFabric account password
+    - Data Fabric account password
     - type: **string**
     - default:
 
@@ -114,7 +115,7 @@ saagie {
     - default:
 
 * **proxyPort**
-    - Proxy Host
+    - Proxy port
     - type: **int**
     - default:
 
@@ -122,6 +123,8 @@ saagie {
     - Set to true to accepte self signed certificates
     - type: **boolean**
     - default: false
+
+We recommend to use variables for login and password and set them at a global level ($GRADLE_USER_HOME/gradle.properties or ).
 
 ### job
 * **id**
@@ -247,10 +250,10 @@ saagie {
 * Support for proxies
 * Support for self signed certificates
 
-### 1.0.5
+#### 1.0.5
 * Fixed Job creation
 
-### 1.0.4
+#### 1.0.4
 * Increased timeout for job export.
 * Fix for SQOOP export.
 
