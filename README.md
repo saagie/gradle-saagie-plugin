@@ -18,7 +18,7 @@ buildscript {
            jcenter()
        }
        dependencies {
-           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.5'
+           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.6'
        }
    }
    
@@ -27,7 +27,7 @@ buildscript {
 <!--
 ```
 plugins {
-  id 'io.saagie.gradle-saagie-plugin' version '1.0.5'
+  id 'io.saagie.gradle-saagie-plugin' version '1.0.6'
 }
 ```
 -->
@@ -243,6 +243,7 @@ saagie {
 
 ### 1.0.6
 * Fixed Job update and Job creation
+* Moved from Unirest to OkHttp
 * Support for proxies
 * Support for self signed certificates
 

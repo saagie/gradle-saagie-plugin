@@ -1,11 +1,12 @@
 package io.saagie.plugin.jobs
 
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
 import io.saagie.plugin.JobType
 import io.saagie.plugin.SaagieClient
 import io.saagie.plugin.SaagiePluginProperties
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
-import org.json.JSONObject
 
 import java.nio.file.Paths
 
@@ -14,6 +15,7 @@ import java.nio.file.Paths
  */
 class UpdateJobTask extends DefaultTask {
     SaagiePluginProperties configuration
+    JsonSlurper jsonSlurper = new JsonSlurper()
 
     @TaskAction
     def updateJob() {
@@ -22,57 +24,42 @@ class UpdateJobTask extends DefaultTask {
 
         saagieClient.getManagerStatus()
 
-        JSONObject job = saagieClient.checkJobExists()
-        logger.info(job.toString(4))
-        job.put("email", configuration.job.email)
-        JSONObject current = job.getJSONObject("current")
-        current
-                .put("releaseNote", configuration.job.releaseNote)
-                .put("cpu", configuration.job.cpu)
-                .put("memory", configuration.job.memory)
-                .put("disk", configuration.job.disk)
+        String job = saagieClient.checkJobExists()
+        logger.info(JsonOutput.prettyPrint(job).stripIndent())
+        def jsonJob = jsonSlurper.parseText job
+        jsonJob.email = configuration.job.email
+        def current = jsonJob.current
+        current.releaseNote = configuration.job.releaseNote
+        current.cpu = configuration.job.cpu
+        current.memory = configuration.job.memory
+        current.disk = configuration.job.disk
+
         if (configuration.job.type != JobType.SQOOP) {
-            String fileName = saagieClient.uploadFile(Paths.get(configuration.target, configuration.fileName))
-            current.put("file", fileName)
+            current.file = saagieClient.uploadFile(Paths.get(configuration.target, configuration.fileName))
         }
         switch (configuration.job.type) {
             case JobType.JAVA_SCALA:
-                current
-                        .put("template", "java -jar {file} $configuration.job.arguments")
-                current.getJSONObject("options")
-                        .put("language_version", configuration.job.languageVersion)
+                current.template = "java -jar {file} $configuration.job.arguments"
+                current.options.language_version = configuration.job.languageVersion
                 break
             case JobType.SPARK:
-                if (configuration.job.language == 'java') {
-                    current
-                            .put("template", "spark-submit --class=$configuration.job.mainClass {file} $configuration.job.arguments")
-                } else {
-                    current
-                            .put("template", "spark-submit --py-files={file} \$MESOS_SANDBOX/__main__.py $configuration.job.arguments")
-                }
-                current.getJSONObject("options")
-                        .put("language_version", configuration.job.sparkVersion)
-                        .put("extra_language", configuration.job.language)
-                        .put("extra_version", configuration.job.languageVersion)
-
+                current.template = configuration.job.language == 'java' ? "spark-submit --class=$configuration.job.mainClass {file} $configuration.job.arguments" : "spark-submit --py-files={file} \$MESOS_SANDBOX/__main__.py $configuration.job.arguments"
+                current.options.language_version = configuration.job.sparkVersion
+                current.options.extra_language = configuration.job.language
+                current.options.extra_version = configuration.job.languageVersion
                 break
             case JobType.PYTHON:
-                current
-                        .put("template", "python {file} $configuration.job.arguments")
-                current.getJSONObject("options")
-                        .put("language_version", configuration.job.languageVersion)
+                current.template = "python {file} $configuration.job.arguments"
+                current.options.langage_version = configuration.job.languageVersion
                 break
             case JobType.R:
-                current
-                        .put("template", "Rscript {file} $configuration.job.arguments")
+                current.template = "Rscript {file} $configuration.job.arguments"
                 break
             case JobType.TALEND:
-                current
-                        .put("template", "sh {file} $configuration.job.arguments")
+                current.template = "sh {file} $configuration.job.arguments"
                 break
             case JobType.SQOOP:
-                current
-                        .put("template", configuration.job.template)
+                current.template = configuration.job.template
                 break
             default:
                 throw new UnsupportedOperationException("$configuration.job.type is currently not supported.")

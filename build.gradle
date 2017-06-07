@@ -24,7 +24,7 @@ dependencies {
 
     compile gradleApi()
     compile group: 'com.mashape.unirest', name: 'unirest-java', version: unirest
-
+    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp
 
     testCompile group: 'junit', name: 'junit', version: jUnit
 }
@@ -78,6 +78,7 @@ uploadArchives {
             repository(url: "https://oss.sonatype.org/${project.version.endsWith('-SNAPSHOT') ? 'content/repositories/snapshots' : 'service/local/staging/deploy/maven2'}") {
                 authentication(userName: project.findProperty('nexusName') ?: '', password: project.findProperty('nexusPassword') ?: '')
             }
+
             pom.project {
                 name project.name
                 url 'https://github.com/saagie/gradle-saagie-plugin'
