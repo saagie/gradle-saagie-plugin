@@ -26,9 +26,9 @@ class UpdateJobTask extends DefaultTask {
 
         String job = saagieClient.checkJobExists()
         logger.info(JsonOutput.prettyPrint(job).stripIndent())
-        def jsonJob = jsonSlurper.parseText job
-        jsonJob.email = configuration.job.email
-        def current = jsonJob.current
+        def jsonMap = jsonSlurper.parseText job
+        jsonMap.email = configuration.job.email
+        def current = jsonMap.current
         current.releaseNote = configuration.job.releaseNote
         current.cpu = configuration.job.cpu
         current.memory = configuration.job.memory
@@ -65,6 +65,6 @@ class UpdateJobTask extends DefaultTask {
                 throw new UnsupportedOperationException("$configuration.job.type is currently not supported.")
         }
 
-        saagieClient.updateJob(job)
+        saagieClient.updateJob(JsonOutput.toJson(jsonMap))
     }
 }

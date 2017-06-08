@@ -35,7 +35,6 @@ script:
       git checkout master;
       gradle release -Prelease.useAutomaticVersion=true --stacktrace;
       gradle closeAndReleaseRepository;
-      gradle publishPlugins;
     else
       gradle uploadArchive --stacktrace;
     fi

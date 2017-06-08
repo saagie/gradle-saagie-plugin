@@ -111,7 +111,8 @@ uploadArchives {
     }
 }
 
-afterReleaseBuild.dependsOn uploadArchives
+publishPlugins.dependsOn uploadArchives
+afterReleaseBuild.dependsOn publishPlugins
 
 nexusStaging {
     username = project.findProperty('nexusName')
