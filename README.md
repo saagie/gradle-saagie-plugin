@@ -124,7 +124,7 @@ saagie {
     - type: **boolean**
     - default: false
 
-We recommend to use variables for login and password and set them at a global level ($GRADLE_USER_HOME/gradle.properties or ).
+We recommend to use variables for login and password and set them at a global level ($GRADLE_USER_HOME/gradle.properties).
 
 ### job
 * **id**
@@ -244,7 +244,10 @@ We recommend to use variables for login and password and set them at a global le
 
 ## Changelog
 
-### 1.0.6
+### 1.0.7
+* Fixed job update
+
+#### 1.0.6
 * Fixed Job update and Job creation
 * Moved from Unirest to OkHttp
 * Support for proxies
