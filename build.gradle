@@ -117,6 +117,7 @@ afterReleaseBuild.dependsOn publishPlugins
 nexusStaging {
     username = project.findProperty('nexusName')
     password = project.findProperty('nexusPassword')
+    delayBetweenRetriesInMillis = 10000
 }
 
 pluginBundle {
