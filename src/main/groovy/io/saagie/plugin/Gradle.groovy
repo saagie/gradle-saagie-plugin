@@ -1,19 +1,27 @@
 package io.saagie.plugin
 
-import io.saagie.plugin.jobs.CreateJobTask
-import io.saagie.plugin.jobs.ExportJobTask
-import io.saagie.plugin.jobs.ImportJobTask
-import io.saagie.plugin.jobs.UpdateJobTask
+import io.saagie.plugin.jobs.*
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
  * Created by ekoffi on 5/12/17.
+ * Register all plugin's tasks in project.
  */
 class Gradle implements Plugin<Project> {
+
+    /**
+     * Apply plugin to pro
+     * @param project
+     */
     @Override
     void apply(Project project) {
         project.extensions.create("saagie", SaagiePluginProperties)
+
+        project.task('listJobs', type: ListJobsTask) {
+            configuration = project.saagie
+        }
+
         project.task('createJob', type: CreateJobTask) {
             configuration = project.saagie
         }
@@ -26,7 +34,23 @@ class Gradle implements Plugin<Project> {
             configuration = project.saagie
         }
 
+        project.task('exportAllJobs', type: ExportAllJobsTask) {
+            configuration = project.saagie
+        }
+
         project.task('importJob', type: ImportJobTask) {
+            configuration = project.saagie
+        }
+
+        project.task('importAllJobs', type: ImportAllJobsTask) {
+            configuration = project.saagie
+        }
+
+        project.task('deleteJob', type: DeleteJobTask) {
+            configuration = project.saagie
+        }
+
+        project.task('deleteAllJob', type: DeleteAllJobsTask) {
             configuration = project.saagie
         }
     }
@@ -74,6 +98,7 @@ class SaagiePluginProperties {
     Packaging packaging = new Packaging()
     String target = ''
     String fileName = ''
+    boolean unsafe = false
 
     Object server(Closure closure) {
         server.with(closure)

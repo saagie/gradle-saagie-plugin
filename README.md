@@ -18,7 +18,7 @@ buildscript {
            jcenter()
        }
        dependencies {
-           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.7'
+           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.8'
        }
    }
    
@@ -28,7 +28,7 @@ buildscript {
 For Gradle 2.1+
 ```
 plugins {
-  id 'io.saagie.gradle-saagie-plugin' version '1.0.7'
+  id 'io.saagie.gradle-saagie-plugin' version '1.0.8'
 }
 ```
 
@@ -37,12 +37,16 @@ plugins {
 
 The following tasks are available:
 
-| Tasks     | Description                                          |
-|-----------|------------------------------------------------------|
-| createJob | Creates a new job.                                   |
-| updateJob | Updates a job.                                       |
-| exportJob | Export a job from the platform into a local archive. |
-| importJob | Creates a job from a local archive.                  |
+| Tasks         | Description                                               |
+|---------------|-----------------------------------------------------------|
+| createJob     | Creates a new job.                                        |
+| updateJob     | Updates a job.                                            |
+| exportJob     | Export a job from the platform into a local archive.      |
+| exportAllJobs | Export all jobs from a platform into a local fat archive. |
+| importJob     | Creates a job from a local archive.                       |
+| importAllJobs | Creates a job from a local fat archive.                   |
+| deleteJob     | Delete a job                                              |
+| deleteAllJobs | Delete all jobs from a plateform. Needs unsafe flag       |
 
 ## Configuration
 ```
@@ -87,6 +91,8 @@ saagie {
     fileName = <archive_name>
 }
 ```
+In case of OOM, add ```org.gradle.jvmargs=-Xmx2048m`` with enough amount of memory for your usage to gradle.properties file.
+
 ---
 ### server
 * **url**
@@ -242,9 +248,20 @@ We recommend to use variables for login and password and set them at a global le
     - type: **string**
     - default:
 
+* **unsafe**
+    - allow to do unsafe operations
+    - type: **boolean**
+    - default:
+
 ## Changelog
 
-### 1.0.7
+### 1.0.8
+* Update to gradle 4.0 for build
+* Allow to import and export a whole plateform
+* Allow to delete a job
+* Allow to delete whole plateform jobs
+
+#### 1.0.7
 * Fixed job update
 
 #### 1.0.6
@@ -271,4 +288,4 @@ We recommend to use variables for login and password and set them at a global le
 * Support for Python jobs
 
 #### 1.0.0
-* Initial release support for Java/Scala jobs 
+* Initial release support for Java/Scala jobs

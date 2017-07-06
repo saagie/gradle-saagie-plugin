@@ -3,19 +3,21 @@ package io.saagie.plugin.jobs
 import io.saagie.plugin.SaagieClient
 import io.saagie.plugin.SaagiePluginProperties
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
 /**
+ * Exports all jobs from a platform.
  * Created by ekoffi on 5/29/17.
  */
-class ExportJobTask extends DefaultTask {
+class ExportAllJobsTask extends DefaultTask {
     SaagiePluginProperties configuration
 
     @TaskAction
-    def exportJob() {
-        logger.info("Export job.")
+    def exportAllJobs() {
+        logger.info("Export all jobs.")
         SaagieClient saagieClient = new SaagieClient(configuration)
 
-        saagieClient.exportArchive(project.buildDir.path)
+        saagieClient.exportAllArchives(project.buildDir.path)
     }
 }

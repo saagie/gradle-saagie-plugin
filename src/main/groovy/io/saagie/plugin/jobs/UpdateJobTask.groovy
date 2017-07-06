@@ -24,7 +24,7 @@ class UpdateJobTask extends DefaultTask {
 
         saagieClient.getManagerStatus()
 
-        String job = saagieClient.checkJobExists()
+        String job = saagieClient.getJob()
         logger.info(JsonOutput.prettyPrint(job).stripIndent())
         def jsonMap = jsonSlurper.parseText job
         jsonMap.email = configuration.job.email

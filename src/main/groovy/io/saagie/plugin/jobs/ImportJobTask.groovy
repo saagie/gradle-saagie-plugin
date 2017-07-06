@@ -16,6 +16,6 @@ class ImportJobTask extends DefaultTask {
         logger.info("Import job.")
         SaagieClient saagieClient = new SaagieClient(configuration)
 
-        saagieClient.importArchive()
+        saagieClient.importArchive(project.buildDir.path)
     }
 }

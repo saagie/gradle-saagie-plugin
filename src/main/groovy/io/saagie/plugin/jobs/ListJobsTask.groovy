@@ -6,16 +6,17 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
 /**
- * Created by ekoffi on 5/29/17.
+ * List all jobs on platform.
+ * Created by ekoffi on 7/3/17.
  */
-class ExportJobTask extends DefaultTask {
+class ListJobsTask extends DefaultTask {
     SaagiePluginProperties configuration
 
     @TaskAction
-    def exportJob() {
-        logger.info("Export job.")
+    def listJobs() {
+        logger.info("List jobs.")
         SaagieClient saagieClient = new SaagieClient(configuration)
 
-        saagieClient.exportArchive(project.buildDir.path)
+        println(saagieClient.allJobs.first())
     }
 }
