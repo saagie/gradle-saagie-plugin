@@ -18,7 +18,7 @@ buildscript {
            jcenter()
        }
        dependencies {
-           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.8'
+           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.9'
        }
    }
    
@@ -28,7 +28,7 @@ buildscript {
 For Gradle 2.1+
 ```
 plugins {
-  id 'io.saagie.gradle-saagie-plugin' version '1.0.8'
+  id 'io.saagie.gradle-saagie-plugin' version '1.0.9'
 }
 ```
 
@@ -255,7 +255,10 @@ We recommend to use variables for login and password and set them at a global le
 
 ## Changelog
 
-### 1.0.8
+### 1.0.9
+* SSL dependencies no longer rely on gradle api dependencies
+
+#### 1.0.8
 * Update to gradle 4.0 for build
 * Allow to import and export a whole plateform
 * Allow to delete a job
