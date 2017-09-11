@@ -24,6 +24,7 @@ dependencies {
 
     compile gradleApi()
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: httpclient
 
     testCompile group: 'junit', name: 'junit', version: jUnit
     testCompile gradleTestKit()
