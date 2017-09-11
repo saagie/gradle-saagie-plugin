@@ -59,11 +59,11 @@ class CreateJobTask extends DefaultTask {
             case JobType.SPARK:
                 current.template = {
                     if (configuration.job.language == 'java') {
-                        return configuration.job.mainClass.empty ? "spark-submit {file} $configuration.job.arguments" : "spark-submit --class=$configuration.job.mainClass {file} $configuration.job.arguments"
+                        configuration.job.mainClass.empty ? "spark-submit {file} $configuration.job.arguments" : "spark-submit --class=$configuration.job.mainClass {file} $configuration.job.arguments"
                     } else {
-                        return "spark-submit --py-files={file} \$MESOS_SANDBOX/__main__.py $configuration.job.arguments"
+                        "spark-submit --py-files={file} \$MESOS_SANDBOX/__main__.py $configuration.job.arguments"
                     }
-                }
+                }.call()
                 options.language_version = configuration.job.sparkVersion
                 options.extra_language = configuration.job.language
                 options.extra_version = configuration.job.languageVersion
