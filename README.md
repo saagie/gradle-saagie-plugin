@@ -8,6 +8,8 @@ A Gradle plugin to create, update, export and import jobs to Saagie Datafabric.
  
 More informations about Saagie: https://www.saagie.com
 
+This plugin is only compatible with gradle 3.0+
+
 ## Setup
 
 Buildscript snippets:
@@ -18,7 +20,7 @@ buildscript {
            jcenter()
        }
        dependencies {
-           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.9'
+           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.10'
        }
    }
    
@@ -28,7 +30,7 @@ buildscript {
 For Gradle 2.1+
 ```
 plugins {
-  id 'io.saagie.gradle-saagie-plugin' version '1.0.9'
+  id 'io.saagie.gradle-saagie-plugin' version '1.0.10'
 }
 ```
 
@@ -89,6 +91,7 @@ saagie {
     
     target = <archive_local_path>
     fileName = <archive_name>
+    outputFile = <output_file_name>
 }
 ```
 In case of OOM, add ```org.gradle.jvmargs=-Xmx2048m`` with enough amount of memory for your usage to gradle.properties file.
@@ -248,6 +251,11 @@ We recommend to use variables for login and password and set them at a global le
     - type: **string**
     - default:
 
+* **outputFile**
+    - output file full path
+    - type: **string**
+    - default:
+
 * **unsafe**
     - allow to do unsafe operations
     - type: **boolean**
@@ -255,7 +263,10 @@ We recommend to use variables for login and password and set them at a global le
 
 ## Changelog
 
-### 1.0.9
+### 1.0.10
+* Write newly created job id into a file.
+
+#### 1.0.9
 * SSL dependencies no longer rely on gradle api dependencies
 
 #### 1.0.8
