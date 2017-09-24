@@ -16,7 +16,6 @@ class ListJobsTask extends DefaultTask {
     def listJobs() {
         logger.info("List jobs.")
         SaagieClient saagieClient = new SaagieClient(configuration)
-
-        logger.quiet("Job list: {}", saagieClient.allJobs.first())
+        logger.quiet("Job list: {}", saagieClient.allJobs)
     }
 }

@@ -26,15 +26,41 @@ import java.util.zip.ZipOutputStream
  * Created by ekoffi on 5/15/17.
  */
 class SaagieClient {
+    /**
+     * Logger
+     */
     private static final Logger logger = Logging.getLogger(this.class)
 
+    /**
+     * Media type for JSON constant.
+     */
     private static final JSON_MEDIA_TYPE = MediaType.parse("application/json")
+
+    /**
+     * Media type for form data type, used for file upload.
+     */
     private static final FORM_DATA_MEDIA_TYPE = MediaType.parse("multipart/form-data")
 
+    /**
+     * The configuration used by the client.
+     */
     SaagiePluginProperties configuration
+
+    /**
+     * The Http REST client.
+     */
     OkHttpClient okHttpClient
+
+    /**
+     * Used to parse JSON.
+     */
     JsonSlurper jsonSlurper
 
+    /**
+     * A REST client wrapper for DataFabric's API calls.
+     * Self signed certs acceptation and proxies are set here and can't be modified after client creation.
+     * @param configuration The configuration to use to connect to Saagie's platform and manage jobs.
+     */
     SaagieClient(SaagiePluginProperties configuration) {
         this.configuration = configuration
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
@@ -79,13 +105,22 @@ class SaagieClient {
         jsonSlurper = new JsonSlurper()
     }
 
-    void getManagerStatus() {
+    /**
+     * Calls the manager to check it's status.
+     * @return The HTTP response code from DataFabric.
+     */
+    int getManagerStatus() {
         def request = new Request.Builder()
                 .url("${configuration.server.url}/platform/${configuration.server.platform}")
                 .get()
                 .build()
-        def response = okHttpClient.newCall(request).execute()
+
+        def response = okHttpClient
+                .newCall(request)
+                .execute()
+
         logger.info("Platform status: ${response.code()}")
+        return response.code()
     }
 
     /**
@@ -208,7 +243,7 @@ class SaagieClient {
      * Returns a platform's complete job id list.
      * @return
      */
-    ArrayList<Integer> getAllJobs() {
+    List<Integer> getAllJobs() {
         logger.debug("Returns job list for platform {}", configuration.server.platform)
         def request = new Request.Builder()
                 .url("$configuration.server.url/platform/$configuration.server.platform/job")
@@ -216,7 +251,7 @@ class SaagieClient {
                 .build()
 
         def response = okHttpClient.newCall(request).execute()
-        ArrayList jsonResponse = jsonSlurper
+        def jsonResponse = jsonSlurper
                 .parseText(response.body().string())
                 .collect { it.id }
 
