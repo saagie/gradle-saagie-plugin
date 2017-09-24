@@ -24,11 +24,4 @@ class GradleTest {
 
         assertTrue(project.tasks.exportJob instanceof ExportJobTask)
     }
-
-    @Test
-    void t() {
-        def t = [nonExist: 'ouais']
-        println(t)
-        println(t.getClass())
-    }
 }

@@ -7,6 +7,7 @@ plugins {
 apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'jacoco'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -19,6 +20,12 @@ repositories {
     jcenter()
 }
 
+configurations {
+    compile.exclude module: 'slf4j-impl'
+    testCompile.exclude module: 'groovy-all'
+    testCompile.exclude module: 'slf4j-impl'
+}
+
 dependencies {
     compile group: 'ch.qos.logback', name: 'logback-classic', version: logback
 
@@ -26,8 +33,11 @@ dependencies {
     compile group: 'com.squareup.okhttp3', name: 'okhttp', version: okhttp
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: httpclient
 
-    testCompile group: 'junit', name: 'junit', version: jUnit
     testCompile gradleTestKit()
+    testCompile 'com.squareup.okhttp3:mockwebserver:3.9.0'
+    testCompile group: 'org.spockframework', name: 'spock-core', version: spockCore
+    testRuntime group: 'org.objenesis', name: 'objenesis', version: objenesis
+    testRuntime group: 'net.bytebuddy', name: 'byte-buddy', version: bytebuddy
 }
 
 configurations {
@@ -134,3 +144,5 @@ pluginBundle {
         }
     }
 }
+
+jacocoTestReport.dependsOn(test)

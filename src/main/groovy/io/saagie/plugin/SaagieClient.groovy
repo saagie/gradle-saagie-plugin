@@ -3,11 +3,11 @@ package io.saagie.plugin
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import okhttp3.*
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy
+import org.apache.http.ssl.SSLContexts
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy
-import org.apache.http.ssl.SSLContexts
 
 import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
@@ -121,7 +121,7 @@ class SaagieClient {
     }
 
     /**
-     * Create job on platform.
+     * Calls DataFabric's api to create a job
      * @param body the request body, should comply with current api version.
      * @return The id of the newly created job
      */
@@ -132,9 +132,11 @@ class SaagieClient {
                 .post(RequestBody.create(JSON_MEDIA_TYPE, body))
                 .build()
 
-        def response = okHttpClient.newCall(request).execute()
+        def response = okHttpClient
+                .newCall(request)
+                .execute()
 
-        if (response.code() != 200) {
+        if (!response.isSuccessful()) {
             throw new GradleException("Error during job creation(ErrorCode: ${response.code()})")
         } else {
             def jsonResponse = jsonSlurper.parseText response.body().string()
@@ -152,6 +154,7 @@ class SaagieClient {
                 .url("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version")
                 .post(RequestBody.create(JSON_MEDIA_TYPE, job.toString()))
                 .build()
+
         def response = okHttpClient.newCall(request).execute()
         if (response.code() != 200 && response.code() != 201) {
             throw new GradleException("Error during job creation(ErrorCode: ${response.code()})")
@@ -183,8 +186,14 @@ class SaagieClient {
      */
     String getJob() {
         logger.debug("Check job {} exists", configuration.job)
+        def id = 0
+        if (configuration.job.id != 0) {
+            id = configuration.job.id
+        } else if (!configuration.outputFile.isEmpty()) {
+            id = new File(configuration.outputFile).text.toInteger()
+        }
         def request = new Request.Builder()
-                .url("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id")
+                .url("$configuration.server.url/platform/$configuration.server.platform/job/$id")
                 .get()
                 .build()
 
