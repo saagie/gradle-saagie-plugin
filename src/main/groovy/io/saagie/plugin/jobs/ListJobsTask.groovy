@@ -17,6 +17,6 @@ class ListJobsTask extends DefaultTask {
         logger.info("List jobs.")
         SaagieClient saagieClient = new SaagieClient(configuration)
 
-        println(saagieClient.allJobs.first())
+        logger.quiet("Job list: {}", saagieClient.allJobs.first())
     }
 }

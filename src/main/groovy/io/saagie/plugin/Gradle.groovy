@@ -1,6 +1,10 @@
 package io.saagie.plugin
 
+import groovy.transform.Canonical
 import io.saagie.plugin.jobs.*
+import io.saagie.plugin.properties.Job
+import io.saagie.plugin.properties.Packaging
+import io.saagie.plugin.properties.Server
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -56,42 +60,7 @@ class Gradle implements Plugin<Project> {
     }
 }
 
-class Server {
-    String url = 'https://manager.prod.saagie.io/api/v1'
-    String login = ''
-    String password = ''
-    String platform = ''
-    String proxyHost = ''
-    int proxyPort = 0
-    boolean acceptSelfSigned = false
-}
-
-class Job {
-    int id = 0
-    String name = ''
-    String type = 'java-scala'
-    String category = 'extract'
-    String language = 'java'
-    String languageVersion = '8.121'
-    String sparkVersion = '2.1.0'
-    float cpu = 0.3
-    int memory = 512
-    int disk = 512
-    boolean streaming = false
-    String mainClass = ''
-    String arguments = ''
-    String description = ''
-    String releaseNote = ''
-    String email = ''
-    String template = ''
-}
-
-class Packaging {
-    String exportFile = ''
-    String importFile = ''
-    boolean currentOnly = true
-}
-
+@Canonical
 class SaagiePluginProperties {
     Server server = new Server()
     Job job = new Job()

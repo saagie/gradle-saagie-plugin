@@ -3,7 +3,6 @@ package io.saagie.plugin.jobs
 import io.saagie.plugin.SaagieClient
 import io.saagie.plugin.SaagiePluginProperties
 import org.gradle.api.DefaultTask
-import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
 
 /**

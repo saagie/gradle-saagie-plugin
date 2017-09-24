@@ -10,12 +10,6 @@ import spock.lang.Specification
  */
 class SaagieClientTest extends Specification {
 
-
-    MockWebServer setupWebserver() {
-        MockWebServer mockWebServer = new MockWebServer()
-        return mockWebServer
-    }
-
     /**
      * Initialize the client for testing.
      * @param response The response stub which will be returned by mocked api calls.
@@ -30,11 +24,12 @@ class SaagieClientTest extends Specification {
 
     def 'Create job with http error'() {
         given:
-        def webserver = setupWebserver()
-        webserver.enqueue(new MockResponse().setResponseCode(403))
-        webserver.start()
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse().setResponseCode(403))
+        mockWebServer.start()
         def saagieClient = createSaagieClient()
-        saagieClient.configuration.server.url = "http://$webserver.hostName:$webserver.port"
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
 
         when:
         saagieClient.createJob('')
@@ -42,29 +37,83 @@ class SaagieClientTest extends Specification {
         then:
         def exception = thrown(GradleException)
         exception.message == 'Error during job creation(ErrorCode: 403)'
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/job'
 
         cleanup:
-        webserver.shutdown()
+        mockWebServer.shutdown()
     }
 
     def 'Create job with success'() {
         given:
-        def srv = setupWebserver()
-        srv.enqueue(new MockResponse()
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json; charset=utf-8")
                 .setBody('{"id": 1}')
         )
-        srv.start()
+        mockWebServer.start()
         def saagieClient = new SaagieClient(Spy(SaagiePluginProperties))
-        saagieClient.configuration.server.url = "http://$srv.hostName:$srv.port"
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
 
         when:
         def jobId = saagieClient.createJob('{"id": 225}')
 
         then:
+        noExceptionThrown()
         jobId == 1
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/job'
 
         cleanup:
-        srv.shutdown()
+        mockWebServer.shutdown()
+    }
+
+    def 'Update job with http error'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse().setResponseCode(403))
+        mockWebServer.start()
+        def saagieClient = new SaagieClient(Spy(SaagiePluginProperties))
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+        saagieClient.configuration.job.id = 25
+
+        when:
+        saagieClient.updateJob('{"id" = 25}')
+
+        then:
+        def exception = thrown(GradleException)
+        exception.message == 'Error during job update(ErrorCode: 403)'
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/job/25/version'
+
+        cleanup:
+        mockWebServer.shutdown()
+    }
+
+    def 'Update job with success'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .setBody('{"id": 25}')
+        )
+        mockWebServer.start()
+        def saagieClient = new SaagieClient(Spy(SaagiePluginProperties))
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+        saagieClient.configuration.job.id = 25
+
+        when:
+        saagieClient.updateJob('{"id": 25}')
+
+        then:
+        noExceptionThrown()
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/job/25/version'
+
+        cleanup:
+        mockWebServer.shutdown()
     }
 }

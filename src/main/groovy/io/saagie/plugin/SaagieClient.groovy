@@ -136,11 +136,11 @@ class SaagieClient {
                 .newCall(request)
                 .execute()
 
-        if (!response.isSuccessful()) {
-            throw new GradleException("Error during job creation(ErrorCode: ${response.code()})")
-        } else {
+        if (response.isSuccessful()) {
             def jsonResponse = jsonSlurper.parseText response.body().string()
             return jsonResponse.id
+        } else {
+            throw new GradleException("Error during job creation(ErrorCode: ${response.code()})")
         }
     }
 
@@ -155,11 +155,14 @@ class SaagieClient {
                 .post(RequestBody.create(JSON_MEDIA_TYPE, job.toString()))
                 .build()
 
-        def response = okHttpClient.newCall(request).execute()
-        if (response.code() != 200 && response.code() != 201) {
-            throw new GradleException("Error during job creation(ErrorCode: ${response.code()})")
-        } else {
+        def response = okHttpClient
+                .newCall(request)
+                .execute()
+
+        if (response.isSuccessful()) {
             logger.info("Job updated. {}", response.body().string())
+        } else {
+            throw new GradleException("Error during job update(ErrorCode: ${response.code()})")
         }
     }
 
