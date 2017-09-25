@@ -23,10 +23,17 @@ class UpdateJobTask extends DefaultTask {
         SaagieClient saagieClient = new SaagieClient(configuration)
 
         saagieClient.getManagerStatus()
-
-        String job = saagieClient.getJob()
+        def id = 0
+        if (configuration.job.id != 0) {
+            id = configuration.job.id
+        } else if (!configuration.job.idFile.empty) {
+            id = new File(configuration.job.idFile).text.toInteger()
+        }
+        String job = saagieClient.getJob(id)
         logger.info(JsonOutput.prettyPrint(job).stripIndent())
+
         def jsonMap = jsonSlurper.parseText job
+        jsonMap = jsonMap.findAll {k, v -> k == "current" || k == "email"}
         jsonMap.email = configuration.job.email
         def current = jsonMap.current
         current.releaseNote = configuration.job.releaseNote
@@ -50,7 +57,7 @@ class UpdateJobTask extends DefaultTask {
                 break
             case JobType.PYTHON:
                 current.template = "python {file} $configuration.job.arguments"
-                current.options.langage_version = configuration.job.languageVersion
+                current.options.language_version = configuration.job.languageVersion
                 break
             case JobType.R:
                 current.template = "Rscript {file} $configuration.job.arguments"
@@ -64,7 +71,6 @@ class UpdateJobTask extends DefaultTask {
             default:
                 throw new UnsupportedOperationException("$configuration.job.type is currently not supported.")
         }
-
-        saagieClient.updateJob(JsonOutput.toJson(jsonMap))
+        saagieClient.updateJob(id, JsonOutput.toJson(jsonMap))
     }
 }

@@ -119,8 +119,10 @@ class SaagieClient {
                 .newCall(request)
                 .execute()
 
-        logger.info("Platform status: ${response.code()}")
-        return response.code()
+        def responseCode = response.code()
+        logger.info("Platform status: $responseCode}")
+        response.close()
+        return responseCode
     }
 
     /**
@@ -172,7 +174,9 @@ class SaagieClient {
                 .execute()
 
         if (response.isSuccessful()) {
-            def jsonResponse = jsonSlurper.parseText response.body().string()
+            def responseText = response.body().string()
+            def jsonResponse = jsonSlurper.parseText responseText
+            logger.info("Response: {}", responseText)
             return jsonResponse.id
         } else {
             throw new GradleException("Error during job creation(ErrorCode: ${response.code()})")
@@ -181,18 +185,21 @@ class SaagieClient {
 
     /**
      * Update job on platform.
+     * @param id The id of the job to update
      * @param job the job configuration to update.
      */
-    void updateJob(String job) {
+    void updateJob(int id, String job) {
         logger.info("Update Job.")
         def request = new Request.Builder()
-                .url("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version")
-                .post(RequestBody.create(JSON_MEDIA_TYPE, job.toString()))
+                .url("$configuration.server.url/platform/$configuration.server.platform/job/$id/version")
+                .post(RequestBody.create(JSON_MEDIA_TYPE, job))
                 .build()
 
         def response = okHttpClient
                 .newCall(request)
                 .execute()
+
+        logger.info("{}", JsonOutput.prettyPrint(job).stripIndent())
 
         if (response.isSuccessful()) {
             logger.info("Job updated. {}", response.body().string())
@@ -222,14 +229,8 @@ class SaagieClient {
      * Retrieves a job settings.
      * @return JSON String representation of job.
      */
-    String getJob() {
+    String getJob(int id) {
         logger.debug("Check job {} exists", configuration.job)
-        def id = 0
-        if (configuration.job.id != 0) {
-            id = configuration.job.id
-        } else if (!configuration.outputFile.isEmpty()) {
-            id = new File(configuration.outputFile).text.toInteger()
-        }
         def request = new Request.Builder()
                 .url("$configuration.server.url/platform/$configuration.server.platform/job/$id")
                 .get()
@@ -266,7 +267,7 @@ class SaagieClient {
      */
     File archiveCreation(String buildDir) {
         logger.info("Creates an archive job.")
-        String job = getJob()
+        String job = getJob(configuration.job.id)
         if (job.length() == 0) {
             throw new GradleException("Job does not exists: $configuration.job.id")
         }

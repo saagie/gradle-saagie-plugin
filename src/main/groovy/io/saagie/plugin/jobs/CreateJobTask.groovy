@@ -88,8 +88,8 @@ class CreateJobTask extends DefaultTask {
         def jsonBody = JsonOutput.toJson(body)
         logger.info(JsonOutput.prettyPrint(jsonBody).stripIndent())
         def jobId = saagieClient.createJob(jsonBody)
-        if (!configuration.outputFile.empty) {
-            new File(configuration.outputFile).text = jobId
+        if (!configuration.job.idFile.empty) {
+            new File(configuration.job.idFile).text = jobId
         }
         logger.info("Id: ${jobId}")
     }

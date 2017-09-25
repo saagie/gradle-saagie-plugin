@@ -25,4 +25,5 @@ class Job {
     String releaseNote = ''
     String email = ''
     String template = ''
+    String idFile = ''
 }

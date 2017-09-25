@@ -67,7 +67,6 @@ class SaagiePluginProperties {
     Packaging packaging = new Packaging()
     String target = ''
     String fileName = ''
-    String outputFile = ''
     boolean unsafe = false
 
     Object server(Closure closure) {

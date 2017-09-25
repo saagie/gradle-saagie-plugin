@@ -89,6 +89,10 @@ uploadArchives {
                 authentication(userName: project.findProperty('nexusName') ?: '', password: project.findProperty('nexusPassword') ?: '')
             }
 
+            repository(url: "http://localhost:8081/nexus/content/repositories/snapshots/") {
+                authentication(userName: 'admin', password: 'admin123')
+            }
+
             pom.project {
                 name project.name
                 url 'https://github.com/saagie/gradle-saagie-plugin'
