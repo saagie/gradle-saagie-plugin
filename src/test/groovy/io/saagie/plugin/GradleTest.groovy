@@ -4,6 +4,7 @@ import io.saagie.plugin.jobs.CreateJobTask
 import io.saagie.plugin.jobs.ExportJobTask
 import io.saagie.plugin.jobs.UpdateJobTask
 import org.gradle.api.Project
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
 

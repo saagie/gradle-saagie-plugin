@@ -64,6 +64,7 @@ class Gradle implements Plugin<Project> {
 class SaagiePluginProperties {
     Server server = new Server()
     Job job = new Job()
+    List<Job> jobs = new LinkedList<Job>()
     Packaging packaging = new Packaging()
     String target = ''
     String fileName = ''
@@ -79,5 +80,17 @@ class SaagiePluginProperties {
 
     Object packaging(Closure closure) {
         packaging.with(closure)
+    }
+
+    Object jobs(Closure closure) {
+        println(closure.class)
+        println(closure)
+        jobs = closure.call().collect { Closure cl ->
+            def a = new Job()
+            cl.delegate = a
+            cl.resolveStrategy = Closure.DELEGATE_FIRST
+            cl.call()
+            a
+        }
     }
 }

@@ -120,7 +120,7 @@ class SaagieClient {
                 .execute()
 
         def responseCode = response.code()
-        logger.info("Platform status: $responseCode}")
+        logger.info("Platform status: {}", responseCode)
         response.close()
         return responseCode
     }
@@ -271,7 +271,7 @@ class SaagieClient {
         if (job.length() == 0) {
             throw new GradleException("Job does not exists: $configuration.job.id")
         }
-        logger.info("{}", JsonOutput.prettyPrint(job))
+        logger.info("{}", job)
         def jsonJob = jsonSlurper.parseText job
         def name = "$jsonJob.id-${jsonJob.name.replaceAll(' ', '_').replaceAll('/', '#')}"
         def workDir = new File("$buildDir/exports/$name")
