@@ -253,7 +253,7 @@ class SaagieClient {
 
         def response = okHttpClient.newCall(request).execute()
         def body = response.body()
-        logger.info("Response: {}", body)
+        logger.info("Response: {}", body.string())
         def jsonResponse = jsonSlurper
                 .parseText(body.string())
                 .collect { it.id }
