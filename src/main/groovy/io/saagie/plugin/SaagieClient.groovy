@@ -252,8 +252,10 @@ class SaagieClient {
                 .build()
 
         def response = okHttpClient.newCall(request).execute()
+        def body = response.body()
+        logger.info("Response: {}", body)
         def jsonResponse = jsonSlurper
-                .parseText(response.body().string())
+                .parseText(body.string())
                 .collect { it.id }
 
         logger.debug("Type of {}", jsonResponse.class)
@@ -272,33 +274,38 @@ class SaagieClient {
             throw new GradleException("Job does not exists: $configuration.job.id")
         }
         logger.info("{}", job)
-        def jsonJob = jsonSlurper.parseText job
-        def name = "$jsonJob.id-${jsonJob.name.replaceAll(' ', '_').replaceAll('/', '#')}"
-        def workDir = new File("$buildDir/exports/$name")
-        workDir.delete()
-        workDir.mkdirs()
-        if (!workDir.exists()) {
-            throw new GradleException("Impossible to create work directory.")
-        }
-        new File(workDir, "settings.json").write(JsonOutput.prettyPrint(job))
-        if (jsonJob.capsule_code != 'sqoop' && jsonJob.capsule_code != 'docker' && jsonJob.capsule_code != 'jupiter') {
-            def client = okHttpClient
-                    .newBuilder()
-                    .readTimeout(10, TimeUnit.MINUTES)
-                    .build()
+        try {
 
-            jsonJob.versions.findAll {
-                (!configuration.packaging.currentOnly || it.number == jsonJob.current.number)
-            } each {
-                def request = new Request.Builder()
-                        .url("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version/${it.number}/binary")
+            def jsonJob = jsonSlurper.parseText job
+            def name = "$jsonJob.id-${jsonJob.name.replaceAll(' ', '_').replaceAll('/', '#')}"
+            def workDir = new File("$buildDir/exports/$name")
+            workDir.delete()
+            workDir.mkdirs()
+            if (!workDir.exists()) {
+                throw new GradleException("Impossible to create work directory.")
+            }
+            new File(workDir, "settings.json").write(JsonOutput.prettyPrint(job))
+            if (jsonJob.capsule_code != 'sqoop' && jsonJob.capsule_code != 'docker' && jsonJob.capsule_code != 'jupiter') {
+                def client = okHttpClient
+                        .newBuilder()
+                        .readTimeout(10, TimeUnit.MINUTES)
                         .build()
 
-                def response = client.newCall(request).execute()
-                new File(workDir, "$it.number-$it.file").bytes = response.body().byteStream().bytes
+                jsonJob.versions.findAll {
+                    (!configuration.packaging.currentOnly || it.number == jsonJob.current.number)
+                } each {
+                    def request = new Request.Builder()
+                            .url("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version/${it.number}/binary")
+                            .build()
+
+                    def response = client.newCall(request).execute()
+                    new File(workDir, "$it.number-$it.file").bytes = response.body().byteStream().bytes
+                }
             }
+            return workDir
+        } catch (Exception ex) {
+            throw new GradleException("Impossible to create archive: {}", ex)
         }
-        return workDir
     }
 
     /**

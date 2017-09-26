@@ -20,7 +20,7 @@ buildscript {
            jcenter()
        }
        dependencies {
-           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.0.10'
+           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '1.1.0'
        }
    }
    
@@ -30,7 +30,7 @@ buildscript {
 For Gradle 2.1+
 ```
 plugins {
-  id 'io.saagie.gradle-saagie-plugin' version '1.0.10'
+  id 'io.saagie.gradle-saagie-plugin' version '1.1.0'
 }
 ```
 
@@ -82,6 +82,28 @@ saagie {
         email = <job_email_notification>
         template = <command_template>
     }
+    
+    jobs {[
+        {
+            id = <job_id>
+            name = <job_name>
+            type = <job_type>
+            category = <job_category>
+            language = <job_language>
+            languageVersion = <language_version>
+            sparkVersion = <spark_version>
+            cpu = <job_cpu>
+            memory = <job_memory>
+            disk = <job disk>
+            streaming = <streaming_flag>
+            mainClass = <spark_main_class>
+            arguments = <job_arguments>
+            description = <job_description>
+            releaseNote = <job_release_note>
+            email = <job_email_notification>
+            template = <command_template>
+        }
+    ]}
     
     packaging {
         exportFile = ''
@@ -135,7 +157,7 @@ In case of OOM, add ```org.gradle.jvmargs=-Xmx2048m`` with enough amount of memo
 
 We recommend to use variables for login and password and set them at a global level ($GRADLE_USER_HOME/gradle.properties).
 
-### job
+### jobs
 * **id**
     - job id on DataFabric for job update
     - type: **int**
@@ -263,7 +285,12 @@ We recommend to use variables for login and password and set them at a global le
 
 ## Changelog
 
-### 1.0.10
+### 1.1.0
+* ListJobs now returns all jobs, not just the first one
+* It is possible to update job from previously saved id file
+* Multiple jobs can be created from same file
+
+#### 1.0.10
 * Write newly created job id into a file.
 
 #### 1.0.9
