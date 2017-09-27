@@ -375,15 +375,16 @@ class SaagieClient {
             settings.remove("versions")
             settings.remove("current")
             def first = true
+            def id = 0
             versions.findAll {
                 (!configuration.packaging.currentOnly || it.number == current.number)
             } each { version ->
-                def file = zip.getInputStream(zip.getEntry("$version.number-$version.file"))
                 version.remove("id")
                 version.remove("number")
                 version.remove("creation_date")
                 settings.current = version
                 if (settings.capsule_code != 'sqoop') {
+                    def file = zip.getInputStream(zip.getEntry("$version.number-$version.file"))
                     def path = Files.write(Paths.get(buildDir, "$version.file"), file.bytes)
                     file.close()
                     def fileName = uploadFile(path)
@@ -393,10 +394,10 @@ class SaagieClient {
                 def jsonSettings = JsonOutput.toJson(settings)
                 logger.info(JsonOutput.prettyPrint(jsonSettings).stripIndent())
                 if (first) {
-                    configuration.job.id = createJob(jsonSettings)
+                    id = createJob(jsonSettings)
                     first = false
                 } else {
-                    updateJob(jsonSettings)
+                    updateJob(id, jsonSettings)
                 }
             }
             zip.close()
