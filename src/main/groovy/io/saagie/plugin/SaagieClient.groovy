@@ -384,6 +384,7 @@ class SaagieClient {
                 version.remove("creation_date")
                 settings.current = version
                 if (settings.capsule_code != 'sqoop') {
+                    logger.info("File searched: {}", "$version.number-$version.file")
                     def file = zip.getInputStream(zip.getEntry("$version.number-$version.file"))
                     def path = Files.write(Paths.get(buildDir, "$version.file"), file.bytes)
                     file.close()
