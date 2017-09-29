@@ -230,7 +230,7 @@ class SaagieClient {
      * @return JSON String representation of job.
      */
     String getJob(int id) {
-        logger.debug("Check job {} exists", configuration.job)
+        logger.info("Check job {} exists", configuration.job)
         def request = new Request.Builder()
                 .url("$configuration.server.url/platform/$configuration.server.platform/job/$id")
                 .get()
@@ -245,7 +245,7 @@ class SaagieClient {
      * @return
      */
     List<Integer> getAllJobs() {
-        logger.debug("Returns job list for platform {}", configuration.server.platform)
+        logger.info("Returns job list for platform {}", configuration.server.platform)
         def request = new Request.Builder()
                 .url("$configuration.server.url/platform/$configuration.server.platform/job")
                 .get()
@@ -254,12 +254,13 @@ class SaagieClient {
         def response = okHttpClient.newCall(request).execute()
         def content = response.body().string()
         logger.info("Response: {}", content)
-        def jsonResponse = jsonSlurper
-                .parseText(content)
-                .collect { it.id }
+        def result = []
+        if (!content.empty)
+            result = jsonSlurper
+                    .parseText(content)
+                    .collect { it.id }
 
-        logger.debug("Type of {}", jsonResponse.class)
-        return jsonResponse
+        return result
     }
 
     /**
@@ -379,29 +380,34 @@ class SaagieClient {
             versions.findAll {
                 (!configuration.packaging.currentOnly || it.number == current.number)
             } each { version ->
-                version.remove("id")
-                version.remove("number")
-                version.remove("creation_date")
-                settings.current = version
-                if (settings.capsule_code != 'sqoop') {
-                    logger.info("File searched: {}", "$version.number-$version.file")
-                    def file = zip.getInputStream(zip.getEntry("$version.number-$version.file"))
-                    def path = Files.write(Paths.get(buildDir, "$version.file"), file.bytes)
-                    file.close()
-                    def fileName = uploadFile(path)
-                    version.file = fileName
-                    path.deleteDir()
-                }
-                def jsonSettings = JsonOutput.toJson(settings)
-                logger.info(JsonOutput.prettyPrint(jsonSettings).stripIndent())
-                if (first) {
-                    id = createJob(jsonSettings)
-                    first = false
-                } else {
-                    updateJob(id, jsonSettings)
+                try {
+                    settings.current = version
+                    if (settings.capsule_code != 'sqoop') {
+                        logger.info("File searched: {}", "$version.number-$version.file")
+                        def file = zip.getInputStream(zip.getEntry("$version.number-$version.file"))
+                        def path = Files.write(Paths.get(buildDir, "$version.file"), file.bytes)
+                        file.close()
+                        def fileName = uploadFile(path)
+                        version.file = fileName
+                        path.deleteDir()
+                    }
+                    version.remove("id")
+                    version.remove("creation_date")
+                    version.remove("number")
+                    def jsonSettings = JsonOutput.toJson(settings)
+                    logger.info(JsonOutput.prettyPrint(jsonSettings).stripIndent())
+                    if (first) {
+                        id = createJob(jsonSettings)
+                        first = false
+                    } else {
+                        updateJob(id, jsonSettings)
+                    }
+                    zip.close()
+                } catch (Exception ex) {
+                    logger.error("Version: {}", version)
+                    logger.error("Impossible to save version: ", ex)
                 }
             }
-            zip.close()
         }
     }
 

@@ -115,4 +115,24 @@ class SaagieClientTest extends Specification {
         cleanup:
         mockWebServer.shutdown()
     }
+
+    def 'List jobs with wrong response'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse())
+        mockWebServer.start()
+        def saagieClient = Spy(SaagieClient, constructorArgs: [Spy(SaagiePluginProperties)])
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+
+        when:
+        def jobs = saagieClient.getAllJobs()
+
+        then:
+        noExceptionThrown()
+        jobs.empty
+
+        cleanup:
+        mockWebServer.shutdown()
+    }
 }
