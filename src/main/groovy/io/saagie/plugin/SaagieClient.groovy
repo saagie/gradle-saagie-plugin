@@ -255,10 +255,11 @@ class SaagieClient {
         def content = response.body().string()
         logger.info("Response: {}", content)
         def result = []
-        if (!content.empty)
+        if (!content.empty) {
             result = jsonSlurper
                     .parseText(content)
                     .collect { it.id }
+        }
 
         return result
     }

@@ -20,7 +20,7 @@ buildscript {
            jcenter()
        }
        dependencies {
-           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '2.0.0'
+           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '2.0.1'
        }
    }
    
@@ -30,7 +30,7 @@ buildscript {
 For Gradle 2.1+
 ```
 plugins {
-  id 'io.saagie.gradle-saagie-plugin' version '2.0.0'
+  id 'io.saagie.gradle-saagie-plugin' version '2.0.1'
 }
 ```
 
@@ -285,7 +285,10 @@ We recommend to use variables for login and password and set them at a global le
 
 ## Changelog
 
-### 2.0.0
+### 2.0.1
+* Fix of archive import
+
+#### 2.0.0
 * ListJobs now returns all jobs, not just the first one
 * It is possible to update job from previously saved id file
 * Multiple jobs can be created from same file

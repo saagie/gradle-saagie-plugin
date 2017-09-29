@@ -83,8 +83,6 @@ class SaagiePluginProperties {
     }
 
     Object jobs(Closure closure) {
-        println(closure.class)
-        println(closure)
         jobs = closure.call().collect { Closure cl ->
             def a = new Job()
             cl.delegate = a
