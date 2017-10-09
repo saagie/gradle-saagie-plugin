@@ -147,3 +147,17 @@ pluginBundle {
 jacocoTestReport.dependsOn(test)
 tasks.getByName('sonarqube').dependsOn(jacocoTestReport)
 
+task createPluginClasspath {
+    def outputDir = file("${buildDir}/resources/test")
+
+    inputs.files sourceSets.test.runtimeClasspath
+    outputs.dir outputDir
+
+    doLast {
+        outputDir.mkdirs()
+        file("${outputDir}/plugin-classpath.txt").text = sourceSets.test.runtimeClasspath.join('\n',)
+    }
+}
+
+test.dependsOn(createPluginClasspath)
+

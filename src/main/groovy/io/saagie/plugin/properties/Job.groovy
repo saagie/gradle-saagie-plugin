@@ -26,4 +26,16 @@ class Job {
     String email = ''
     String template = ''
     String idFile = ''
+
+    /**
+     * Find the job id from configuration or file.
+     * @return The id found. Configuration id supersedes file's one.
+     */
+    int findId() {
+        int res = id
+        if (id == 0 && !idFile.empty) {
+            res = new File(idFile).text.toInteger()
+        }
+        return res
+    }
 }

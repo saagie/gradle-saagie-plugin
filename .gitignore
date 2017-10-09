@@ -65,3 +65,4 @@ keys.tar
 
 gradle-*.*/
 gradle-*.*-bin.zip
+plugin-classpath.txt

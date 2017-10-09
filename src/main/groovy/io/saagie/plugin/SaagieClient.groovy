@@ -64,7 +64,7 @@ class SaagieClient {
     SaagieClient(SaagiePluginProperties configuration) {
         this.configuration = configuration
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-        if (!configuration.server.proxyHost.isEmpty()) {
+        if (!configuration.server.proxyHost.isEmpty() && configuration.server.proxyPort != 0) {
             builder.proxy(new Proxy(Proxy.Type.SOCKS, InetSocketAddress.createUnresolved(configuration.server.proxyHost, configuration.server.proxyPort)))
         }
         if (configuration.server.acceptSelfSigned) {
@@ -148,12 +148,17 @@ class SaagieClient {
                 .build())
                 .build()
 
-        def response = client.newCall(request).execute()
-        if (response.code() != 200) {
-            throw new GradleException("Error during job creation at file upload (ErrorCode: ${response.code()})")
-        } else {
-            def jsonResponse = jsonSlurper.parseText response.body().string()
+        def response = client
+                .newCall(request)
+                .execute()
+
+        if (response.isSuccessful()) {
+            def body = response.body().string()
+            logger.info("Upload file response: {}", body)
+            def jsonResponse = jsonSlurper.parseText body
             return jsonResponse.fileName
+        } else {
+            throw new GradleException("Error during job creation at file upload (ErrorCode: ${response.code()})")
         }
     }
 
@@ -210,18 +215,24 @@ class SaagieClient {
 
     /**
      * Delete a job.
+     * @param id The id of the job to delete
      */
-    void deleteJob() {
+    void deleteJob(int id) {
         logger.info("Delete Job.")
         def request = new Request.Builder()
-                .url("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id")
+                .url("$configuration.server.url/platform/$configuration.server.platform/job/$id")
                 .delete()
                 .build()
-        def response = okHttpClient.newCall(request).execute()
-        if (response.code() != 200 && response.code() != 204) {
-            throw new GradleException("Error during job deletion(ErrorCode: {${response.code()})")
+
+        def response = okHttpClient
+                .newCall(request)
+                .execute()
+
+        if (response.isSuccessful()) {
+            logger.info("Delete response: {}", response.body().string())
+            logger.lifecycle("Job {} deleted.", id)
         } else {
-            logger.info("Job deleted.")
+            throw new GradleException("Error during job deletion(ErrorCode: ${response.code()})")
         }
     }
 
@@ -230,14 +241,24 @@ class SaagieClient {
      * @return JSON String representation of job.
      */
     String getJob(int id) {
-        logger.info("Check job {} exists", configuration.job)
+        logger.info("Check job {} exists", id)
         def request = new Request.Builder()
                 .url("$configuration.server.url/platform/$configuration.server.platform/job/$id")
                 .get()
                 .build()
 
-        def response = okHttpClient.newCall(request).execute()
-        return response.body().string()
+        def response = okHttpClient
+                .newCall(request)
+                .execute()
+
+        logger.info("Response code: {}", response.code())
+        if (response.isSuccessful()) {
+            def jsonResponse = response.body().string()
+            return jsonResponse
+        } else {
+            throw new GradleException("Impossible to find job $id (ErrorCode: ${response.code()})")
+        }
+
     }
 
     /**
@@ -265,57 +286,56 @@ class SaagieClient {
     }
 
     /**
-     * Creates an archive for a job.
+     * Retrieves artifacts for a job.
+     * @param id Job id to retrieve
      * @param buildDir directory where the plugin will work.
-     * @return The path to the directory which contains all packages and job's settings.
+     * @return The path to the directory which contains all artifacts and job's settings.
      */
-    File archiveCreation(String buildDir) {
+    File retrieveJobsArtifacts(int id, String buildDir) {
         logger.info("Creates an archive job.")
-        String job = getJob(configuration.job.id)
-        if (job.length() == 0) {
-            throw new GradleException("Job does not exists: $configuration.job.id")
-        }
+        String job = this.getJob(id)
         logger.info("{}", job)
-        try {
 
-            def jsonJob = jsonSlurper.parseText job
-            def name = "$jsonJob.id-${jsonJob.name.replaceAll(' ', '_').replaceAll('/', '#')}"
-            def workDir = new File("$buildDir/exports/$name")
-            workDir.delete()
-            workDir.mkdirs()
-            if (!workDir.exists()) {
-                throw new GradleException("Impossible to create work directory.")
-            }
-            new File(workDir, "settings.json").write(JsonOutput.prettyPrint(job))
-            if (jsonJob.capsule_code != 'sqoop' && jsonJob.capsule_code != 'docker' && jsonJob.capsule_code != 'jupiter') {
-                def client = okHttpClient
-                        .newBuilder()
-                        .readTimeout(10, TimeUnit.MINUTES)
+        def jsonJob = jsonSlurper.parseText job
+        def name = "$jsonJob.id-${jsonJob.name.replaceAll(' ', '_').replaceAll('/', '#')}"
+        def workDir = new File("$buildDir/exports/$name")
+        workDir.delete()
+        workDir.mkdirs()
+        if (!workDir.exists()) {
+            throw new GradleException("Impossible to create work directory: $buildDir/exports/$name")
+        }
+        new File(workDir, "settings.json").write(JsonOutput.prettyPrint(job))
+        if (![JobType.SQOOP, JobType.DOCKER, JobType.JUPYTER].contains(jsonJob.capsule_code)) {
+            def client = okHttpClient
+                    .newBuilder()
+                    .readTimeout(10, TimeUnit.MINUTES)
+                    .build()
+
+            jsonJob.versions.findAll {
+                (!configuration.packaging.currentOnly || it.number == jsonJob.current.number)
+            } each {
+                def request = new Request.Builder()
+                        .url("$configuration.server.url/platform/$configuration.server.platform/job/$id/version/${it.number}/binary")
                         .build()
 
-                jsonJob.versions.findAll {
-                    (!configuration.packaging.currentOnly || it.number == jsonJob.current.number)
-                } each {
-                    def request = new Request.Builder()
-                            .url("$configuration.server.url/platform/$configuration.server.platform/job/$configuration.job.id/version/${it.number}/binary")
-                            .build()
+                def response = client
+                        .newCall(request)
+                        .execute()
 
-                    def response = client.newCall(request).execute()
-                    new File(workDir, "$it.number-$it.file").bytes = response.body().byteStream().bytes
-                }
+                new File(workDir, "$it.number-$it.file").bytes = response.body().byteStream().bytes
             }
-            return workDir
-        } catch (Exception ex) {
-            throw new GradleException("Impossible to create archive: {}", ex)
         }
+        return workDir
     }
 
     /**
      * Create an archive with job description and files.
+     * @param id Job id to retrieve.
+     * @param buildDir directory where the plugin will work.
      */
-    void exportArchive(String buildDir) {
+    void exportArchive(int id, String buildDir) {
         logger.info("Archives a job.")
-        File workDir = archiveCreation(buildDir)
+        File workDir = this.retrieveJobsArtifacts(id, buildDir)
         ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File(configuration.target, "${configuration.packaging.exportFile}.zip")))
         workDir.eachFile {
             zip.putNextEntry(new ZipEntry(it.getName()))
@@ -340,8 +360,7 @@ class SaagieClient {
         logger.lifecycle("Number of jobs to export: {}", jobs.size())
         int cpt = 0
         jobs.each {
-            configuration.job.id = it
-            File workDir = archiveCreation(buildDir)
+            File workDir = this.retrieveJobsArtifacts(it, buildDir)
             ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File("$buildDir/exports", "${workDir.canonicalFile.name}.zip")))
             workDir.eachFile {
                 zip.putNextEntry(new ZipEntry(it.getName()))
@@ -364,6 +383,11 @@ class SaagieClient {
         zip.close()
     }
 
+    /**
+     * Import a job to the platform.
+     * @param buildDir The directory where method will work.
+     * @param zip The archive of the job to upload.
+     */
     void archiveProcess(String buildDir, ZipFile zip) {
         def settings = jsonSlurper.parseText(zip.getInputStream(zip.getEntry("settings.json")).text)
         if (settings.capsule_code != 'docker' && settings.capsule_code != 'jupiter') {
@@ -381,48 +405,45 @@ class SaagieClient {
             versions.findAll {
                 (!configuration.packaging.currentOnly || it.number == current.number)
             } each { version ->
-                try {
-                    settings.current = version
-                    if (settings.capsule_code != 'sqoop') {
-                        logger.info("File searched: {}", "$version.number-$version.file")
-                        def file = zip.getInputStream(zip.getEntry("$version.number-$version.file"))
-                        def path = Files.write(Paths.get(buildDir, "$version.file"), file.bytes)
-                        file.close()
-                        def fileName = uploadFile(path)
-                        version.file = fileName
-                        path.deleteDir()
-                    }
-                    version.remove("id")
-                    version.remove("creation_date")
-                    version.remove("number")
-                    def jsonSettings = JsonOutput.toJson(settings)
-                    logger.info(JsonOutput.prettyPrint(jsonSettings).stripIndent())
-                    if (first) {
-                        id = createJob(jsonSettings)
-                        first = false
-                    } else {
-                        updateJob(id, jsonSettings)
-                    }
-                    zip.close()
-                } catch (Exception ex) {
-                    logger.error("Version: {}", version)
-                    logger.error("Impossible to save version: ", ex)
+                settings.current = version
+                if (settings.capsule_code != JobType.SQOOP) {
+                    logger.info("File searched: {}", "$version.number-$version.file")
+                    def file = zip.getInputStream(zip.getEntry("$version.number-$version.file"))
+                    def path = Files.write(Paths.get(buildDir, "$version.file"), file.bytes)
+                    file.close()
+                    def fileName = uploadFile(path)
+                    version.file = fileName
+                    path.deleteDir()
                 }
+                version.remove("id")
+                version.remove("creation_date")
+                version.remove("number")
+                def jsonSettings = JsonOutput.toJson(settings)
+                logger.info(JsonOutput.prettyPrint(jsonSettings).stripIndent())
+                if (first) {
+                    id = createJob(jsonSettings)
+                    first = false
+                } else {
+                    updateJob(id, jsonSettings)
+                }
+                zip.close()
             }
         }
     }
 
     /**
      * Creates jobs on platform from archive.
+     * @param buildDir The directory the method will work in.
      */
     void importArchive(String buildDir) {
         logger.info("Import archive.")
-        archiveProcess(buildDir, new ZipFile(new File(configuration.target, configuration.packaging.importFile)))
+        new File(buildDir).mkdir()
+        this.archiveProcess(buildDir, new ZipFile(new File(configuration.target, configuration.packaging.importFile)))
     }
 
     /**
      * Imports a fat archive.
-     * @param buildDir
+     * @param buildDir The directory the method will work in.
      */
     void importFatArchive(String buildDir) {
         logger.info("Import fat archive.")

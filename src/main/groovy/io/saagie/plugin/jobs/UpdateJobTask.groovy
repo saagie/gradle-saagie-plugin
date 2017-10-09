@@ -6,6 +6,7 @@ import io.saagie.plugin.JobType
 import io.saagie.plugin.SaagieClient
 import io.saagie.plugin.SaagiePluginProperties
 import org.gradle.api.DefaultTask
+import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
@@ -15,21 +16,30 @@ import java.nio.file.Paths
  */
 class UpdateJobTask extends DefaultTask {
     SaagiePluginProperties configuration
-    JsonSlurper jsonSlurper = new JsonSlurper()
 
     @TaskAction
     def updateJob() {
+        new UpdateJob(configuration).updateJob(logger)
+    }
+}
+
+class UpdateJob {
+    SaagiePluginProperties configuration
+    SaagieClient saagieClient
+    JsonSlurper jsonSlurper
+
+    UpdateJob(SaagiePluginProperties configuration) {
+        this.configuration = configuration
+        this.jsonSlurper = new JsonSlurper()
+    }
+
+    def updateJob(Logger logger) {
         logger.info("Update job.")
         SaagieClient saagieClient = new SaagieClient(configuration)
 
         saagieClient.getManagerStatus()
         configuration.jobs.each { job ->
-            def id = 0
-            if (job.id != 0) {
-                id = job.id
-            } else if (!job.idFile.empty) {
-                id = new File(job.idFile).text.toInteger()
-            }
+            def id = job.findId()
             String platformJob = saagieClient.getJob(id)
             logger.info("{}", JsonOutput.prettyPrint(platformJob).stripIndent())
 
@@ -38,6 +48,7 @@ class UpdateJobTask extends DefaultTask {
             jsonMap.email = job.email
             def current = jsonMap.current
             current.releaseNote = job.releaseNote
+            current.description = job.description
             current.cpu = job.cpu
             current.memory = job.memory
             current.disk = job.disk
@@ -47,24 +58,44 @@ class UpdateJobTask extends DefaultTask {
             }
             switch (job.type) {
                 case JobType.JAVA_SCALA:
-                    current.template = "java -jar {file} $job.arguments"
+                    if (job.template.empty) {
+                        current.template = "java -jar {file} $job.arguments"
+                    } else {
+                        current.template = job.template
+                    }
                     current.options.language_version = job.languageVersion
                     break
                 case JobType.SPARK:
-                    current.template = job.language == 'java' ? "spark-submit --class=$job.mainClass {file} $job.arguments" : "spark-submit --py-files={file} \$MESOS_SANDBOX/__main__.py $job.arguments"
+                    if (job.template.empty) {
+                        current.template = job.language == 'java' ? "spark-submit --class=$job.mainClass {file} $job.arguments" : "spark-submit --py-files={file} \$MESOS_SANDBOX/__main__.py $job.arguments"
+                    } else {
+                        current.template = job.template
+                    }
                     current.options.language_version = job.sparkVersion
                     current.options.extra_language = job.language
                     current.options.extra_version = job.languageVersion
                     break
                 case JobType.PYTHON:
-                    current.template = "python {file} $job.arguments"
+                    if (job.template.empty) {
+                        current.template = "python {file} $job.arguments"
+                    } else {
+                        current.template = job.template
+                    }
                     current.options.language_version = job.languageVersion
                     break
                 case JobType.R:
-                    current.template = "Rscript {file} $job.arguments"
+                    if (job.template.empty) {
+                        current.template = "Rscript {file} $job.arguments"
+                    } else {
+                        current.template = job.template
+                    }
                     break
                 case JobType.TALEND:
-                    current.template = "sh {file} $job.arguments"
+                    if (job.template.empty) {
+                        current.template = "sh {file} $job.arguments"
+                    } else {
+                        current.template = job.template
+                    }
                     break
                 case JobType.SQOOP:
                     current.template = job.template

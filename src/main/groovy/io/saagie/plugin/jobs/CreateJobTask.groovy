@@ -6,6 +6,7 @@ import io.saagie.plugin.JobType
 import io.saagie.plugin.SaagieClient
 import io.saagie.plugin.SaagiePluginProperties
 import org.gradle.api.DefaultTask
+import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.TaskAction
 
 import java.nio.file.Paths
@@ -19,12 +20,25 @@ class CreateJobTask extends DefaultTask {
 
     @TaskAction
     def createJob() {
+        new CreateJob(configuration).createJob(logger)
+    }
+}
+
+class CreateJob {
+    SaagiePluginProperties configuration
+    SaagieClient saagieClient
+
+    CreateJob(SaagiePluginProperties configuration) {
+        this.configuration = configuration
+    }
+
+    def createJob(Logger logger) {
         logger.info("Create Job.")
         configuration.jobs.each { job ->
             if (job.type == JobType.SQOOP && job.category == JobCategory.PROCESSING) {
                 throw new UnsupportedOperationException("Can't create SQOOP job in processing category.")
             }
-            SaagieClient saagieClient = new SaagieClient(configuration)
+            saagieClient = new SaagieClient(configuration)
 
             saagieClient.getManagerStatus()
 
@@ -54,31 +68,45 @@ class CreateJobTask extends DefaultTask {
             logger.info "$job.type job."
             switch (job.type) {
                 case JobType.JAVA_SCALA:
-                    current.template = "java -jar {file} $job.arguments"
+                    if (job.template.empty) {
+                        current.template = "java -jar {file} $job.arguments"
+                    } else {
+                        current.template = job.template
+                    }
                     options.language_version = job.languageVersion
                     break
                 case JobType.SPARK:
-                    current.template = {
-                        if (job.language == 'java') {
-                            job.mainClass.empty ? "spark-submit {file} $job.arguments" : "spark-submit --class=$job.mainClass {file} $job.arguments"
-                        } else {
-                            "spark-submit --py-files={file} \$MESOS_SANDBOX/__main__.py $job.arguments"
-                        }
-                    }.call()
+                    if (job.template.empty) {
+                        current.template = job.language == 'java' ? "spark-submit --class=$job.mainClass {file} $job.arguments" : "spark-submit --py-files={file} \$MESOS_SANDBOX/__main__.py $job.arguments"
+                    } else {
+                        current.template = job.template
+                    }
                     options.language_version = job.sparkVersion
                     options.extra_language = job.language
                     options.extra_version = job.languageVersion
                     body.streaming = job.streaming
                     break
                 case JobType.PYTHON:
-                    current.template = "python {file} $job.arguments"
+                    if (job.template.empty) {
+                        current.template = "python {file} $job.arguments"
+                    } else {
+                        current.template = job.template
+                    }
                     options.language_version = job.languageVersion
                     break
                 case JobType.R:
-                    current.template = "Rscript {file} $job.arguments"
+                    if (job.template.empty) {
+                        current.template = "Rscript {file} $job.arguments"
+                    } else {
+                        current.template = job.template
+                    }
                     break
                 case JobType.TALEND:
-                    current.template = "sh {file} $job.arguments"
+                    if (job.template.empty) {
+                        current.template = "sh {file} $job.arguments"
+                    } else {
+                        current.template = job.template
+                    }
                     break
                 case JobType.SQOOP:
                     current.template = job.template

@@ -15,7 +15,8 @@ class ExportJobTask extends DefaultTask {
     def exportJob() {
         logger.info("Export job.")
         SaagieClient saagieClient = new SaagieClient(configuration)
-
-        saagieClient.exportArchive(project.buildDir.path)
+        configuration.jobs.each {
+            saagieClient.exportArchive(it.findId(), project.buildDir.path)
+        }
     }
 }

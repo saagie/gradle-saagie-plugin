@@ -15,7 +15,7 @@ import org.gradle.api.Project
 class Gradle implements Plugin<Project> {
 
     /**
-     * Apply plugin to pro
+     * Apply plugin to project
      * @param project
      */
     @Override
@@ -23,38 +23,47 @@ class Gradle implements Plugin<Project> {
         project.extensions.create("saagie", SaagiePluginProperties)
 
         project.task('listJobs', type: ListJobsTask) {
+            group = 'saagie'
             configuration = project.saagie
         }
 
         project.task('createJob', type: CreateJobTask) {
+            group = 'saagie'
             configuration = project.saagie
         }
 
         project.task('updateJob', type: UpdateJobTask) {
+            group = 'saagie'
             configuration = project.saagie
         }
 
         project.task('exportJob', type: ExportJobTask) {
+            group = 'saagie'
             configuration = project.saagie
         }
 
         project.task('exportAllJobs', type: ExportAllJobsTask) {
+            group = 'saagie'
             configuration = project.saagie
         }
 
         project.task('importJob', type: ImportJobTask) {
+            group = 'saagie'
             configuration = project.saagie
         }
 
         project.task('importAllJobs', type: ImportAllJobsTask) {
+            group = 'saagie'
             configuration = project.saagie
         }
 
         project.task('deleteJob', type: DeleteJobTask) {
+            group = 'saagie'
             configuration = project.saagie
         }
 
         project.task('deleteAllJob', type: DeleteAllJobsTask) {
+            group = 'saagie'
             configuration = project.saagie
         }
     }

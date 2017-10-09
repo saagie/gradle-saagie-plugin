@@ -20,6 +20,8 @@ class DeleteJobTask extends DefaultTask {
         logger.info("Delete Job.")
         SaagieClient saagieClient = new SaagieClient(configuration)
         saagieClient.getManagerStatus()
-        saagieClient.deleteJob()
+        configuration.jobs.each { job ->
+            saagieClient.deleteJob(job.findId())
+        }
     }
 }
