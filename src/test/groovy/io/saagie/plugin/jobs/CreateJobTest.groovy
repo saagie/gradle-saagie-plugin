@@ -48,8 +48,10 @@ class CreateJobTest extends Specification {
         given:
         def mockWebServer = new MockWebServer()
         mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200))
+        mockWebServer.enqueue(new MockResponse()
                 .addHeader("Content-Type", "application/json; charset=utf-8")
-                .setBody('{"id":135,"capsule_code":"sqoop","current":{"id":234,"number":1,"template":"python {file} impala dn1","file":"python-tests-1.0.0.zip","creation_date":"2017-09-25T16:04:47+00:00","options":{"language_version":"2.7.13"},"cpu":0.3,"memory":512,"disk":512,"releaseNote":"","important":false},"versions":[],"streaming":false,"category":"processing","name":"Impala Connection","email":"","platform_id":2,"manual":true,"schedule":"R0\\/2017-05-23T13:59:05.587Z\\/P0Y0M1DT0H0M0S","retry":"","workflows":[],"deletable":true,"description":""}')
+                .setBody('{"id":135,"capsule_code":"sqoop","current":{"id":234,"number":1,"template":"python {file} impala dn1","creation_date":"2017-09-25T16:04:47+00:00","options":{"language_version":"2.7.13"},"cpu":0.3,"memory":512,"disk":512,"releaseNote":"","important":false},"versions":[],"streaming":false,"category":"processing","name":"Impala Connection","email":"","platform_id":2,"manual":true,"schedule":"R0\\/2017-05-23T13:59:05.587Z\\/P0Y0M1DT0H0M0S","retry":"","workflows":[],"deletable":true,"description":""}')
         )
         mockWebServer.start()
         def configuration = new SaagiePluginProperties()
