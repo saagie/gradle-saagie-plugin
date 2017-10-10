@@ -356,7 +356,6 @@ class SaagieClient {
         if (jobs.empty) {
             throw new GradleException("Platform is empty.")
         }
-        configuration.packaging.currentOnly = false
         logger.lifecycle("Number of jobs to export: {}", jobs.size())
         int cpt = 0
         jobs.each {

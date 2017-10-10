@@ -9,11 +9,11 @@ import groovy.transform.Canonical
 @Canonical
 class Job {
     int id = 0
-    String name = ''
+    String name = 'Generic Job Name'
     String type = 'java-scala'
     String category = 'extract'
     String language = 'java'
-    String languageVersion = '8.121'
+    String languageVersion = '8.131'
     String sparkVersion = '2.1.0'
     float cpu = 0.3
     int memory = 512
@@ -26,6 +26,7 @@ class Job {
     String email = ''
     String template = ''
     String idFile = ''
+    //TODO: always_email, important versions
 
     /**
      * Find the job id from configuration or file.
