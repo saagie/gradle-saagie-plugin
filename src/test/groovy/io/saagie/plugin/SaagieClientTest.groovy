@@ -527,12 +527,16 @@ class SaagieClientTest extends Specification {
         def zipJupyter = new ZipFile(new File(getClass().classLoader.getResource("jupyter.zip").file))
 
         when:
-        saagieClient.archiveProcess('./processDocker/', zipDocker)
-        saagieClient.archiveProcess('./processJupyter/', zipJupyter)
+        saagieClient.processArchive('./processDocker/', zipDocker)
+        saagieClient.processArchive('./processJupyter/', zipJupyter)
 
         then:
         !new File('./processDocker/').exists()
         !new File('./processJupyter/').exists()
+
+        cleanup:
+        zipDocker.close()
+        zipJupyter.close()
     }
 
     def "Archive process single version"() {

@@ -387,7 +387,7 @@ class SaagieClient {
      * @param buildDir The directory where method will work.
      * @param zip The archive of the job to upload.
      */
-    void archiveProcess(String buildDir, ZipFile zip) {
+    void processArchive(String buildDir, ZipFile zip) {
         def settings = jsonSlurper.parseText(zip.getInputStream(zip.getEntry("settings.json")).text)
         if (settings.capsule_code != 'docker' && settings.capsule_code != 'jupiter') {
             settings.remove("id")
@@ -425,7 +425,6 @@ class SaagieClient {
                 } else {
                     updateJob(id, jsonSettings)
                 }
-                zip.close()
             }
         }
     }
@@ -437,7 +436,9 @@ class SaagieClient {
     void importArchive(String buildDir) {
         logger.info("Import archive.")
         new File(buildDir).mkdir()
-        this.archiveProcess(buildDir, new ZipFile(new File(configuration.target, configuration.packaging.importFile)))
+        def zip = new ZipFile(new File(configuration.target, configuration.packaging.importFile))
+        this.processArchive(buildDir, new ZipFile(new File(configuration.target, configuration.packaging.importFile)))
+        zip.close()
     }
 
     /**
@@ -454,7 +455,9 @@ class SaagieClient {
             def zipStream = zip.getInputStream(it)
             def file = new File("$workDir/$it.name")
             file.bytes = zipStream.bytes
-            archiveProcess(buildDir, new ZipFile(file))
+            def zipFile = new ZipFile(file)
+            processArchive(buildDir, new ZipFile(file))
+            zipFile.close()
             zipStream.close()
         }
         zip.close()
