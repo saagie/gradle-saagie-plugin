@@ -272,7 +272,7 @@ class SaagieClient {
         logger.info("Set current version")
         def request = new Request.Builder()
                 .url("$configuration.server.url/platform/$configuration.server.platform/job/$id/version/$version/rollback")
-                .get()
+                .post(RequestBody.create(JSON_MEDIA_TYPE, '{}'))
                 .build()
 
         def response = okHttpClient
@@ -445,6 +445,7 @@ class SaagieClient {
                 version.remove("id")
                 version.remove("creation_date")
                 version.remove("number")
+                version.remove("job_id")
                 def jsonSettings = JsonOutput.toJson(settings)
                 logger.info(JsonOutput.prettyPrint(jsonSettings).stripIndent())
                 if (first) {
