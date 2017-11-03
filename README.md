@@ -20,7 +20,7 @@ buildscript {
            jcenter()
        }
        dependencies {
-           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '2.0.2'
+           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '2.0.5'
        }
    }
 
@@ -30,7 +30,7 @@ buildscript {
 For Gradle 2.1+
 ```
 plugins {
-  id 'io.saagie.gradle-saagie-plugin' version '2.0.2'
+  id 'io.saagie.gradle-saagie-plugin' version '2.0.5'
 }
 ```
 
