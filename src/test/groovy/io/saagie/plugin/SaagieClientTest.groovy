@@ -387,6 +387,25 @@ class SaagieClientTest extends Specification {
         mockWebServer.shutdown()
     }
 
+    def 'Update job version'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200))
+        mockWebServer.start()
+        def saagieClient = new SaagieClient(Spy(SaagiePluginProperties))
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+
+        when:
+        saagieClient.currentVersion(6135, 5)
+
+        then:
+        noExceptionThrown()
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/job/6135/version/5/rollback'
+    }
+
     def 'Retrieve artifact no directory access'() {
         given:
         def mockWebServer = new MockWebServer()

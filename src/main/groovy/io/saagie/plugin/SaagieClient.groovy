@@ -238,6 +238,7 @@ class SaagieClient {
 
     /**
      * Retrieves a job settings.
+     * @param id The id of the job
      * @return JSON String representation of job.
      */
     String getJob(int id) {
@@ -259,6 +260,33 @@ class SaagieClient {
             throw new GradleException("Impossible to find job $id (ErrorCode: ${response.code()})")
         }
 
+    }
+
+    /**
+     * Updates job's current version.
+     * @param id The id of the job to update.
+     * @param version version to set.
+     * @return The rollback version.
+     */
+    String currentVersion(int id, int version) {
+        logger.info("Set current version")
+        def request = new Request.Builder()
+                .url("$configuration.server.url/platform/$configuration.server.platform/job/$id/version/$version/rollback")
+                .get()
+                .build()
+
+        def response = okHttpClient
+                .newCall(request)
+                .execute()
+
+        logger.info("Response code: {}", response.code())
+
+        if (response.isSuccessful()) {
+            def jsonResponse = response.body().string()
+            return jsonResponse
+        } else {
+            throw new GradleException("Impossible to find job $id (ErrorCode: ${response.code()})")
+        }
     }
 
     /**
@@ -425,6 +453,10 @@ class SaagieClient {
                 } else {
                     updateJob(id, jsonSettings)
                 }
+            }
+
+            if (!configuration.packaging.currentOnly) {
+                currentVersion(id, (Integer) current.number)
             }
         }
     }
