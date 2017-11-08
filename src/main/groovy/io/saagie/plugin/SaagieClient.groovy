@@ -291,7 +291,7 @@ class SaagieClient {
 
     /**
      * Returns a platform's complete job id list.
-     * @return
+     * @return Job's id list.
      */
     List<Integer> getAllJobs() {
         logger.info("Returns job list for platform {}", configuration.server.platform)
@@ -308,6 +308,28 @@ class SaagieClient {
             result = jsonSlurper
                     .parseText(content)
                     .collect { it.id }
+        }
+
+        return result
+    }
+
+    /**
+     * Returns a platform's complete environment variables list.
+     * @return A list of
+     */
+    List<String> getAllVars() {
+        logger.info("Returns var list for platform {}", configuration.server.platform)
+        def request = new Request.Builder()
+                .url("$configuration.server.url/platform/$configuration.server.platform/envvars")
+                .get()
+                .build()
+
+        def response = okHttpClient.newCall(request).execute()
+        def content = response.body().string()
+        logger.info("Response: {}", content)
+        def result = []
+        if (!content.empty) {
+            result = jsonSlurper.parseText(content) as List<String>
         }
 
         return result
@@ -363,14 +385,15 @@ class SaagieClient {
      */
     void exportArchive(int id, String buildDir) {
         logger.info("Archives a job.")
-        File workDir = this.retrieveJobsArtifacts(id, buildDir)
-        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File(configuration.target, "${configuration.packaging.exportFile}.zip")))
-        workDir.eachFile {
-            zip.putNextEntry(new ZipEntry(it.getName()))
-            zip.write(it.readBytes())
-            zip.closeEntry()
+        def workDir = this.retrieveJobsArtifacts(id, buildDir)
+        new File(configuration.target, "$id-${configuration.packaging.exportFile}.zip").withOutputStream {
+            ZipOutputStream zip = new ZipOutputStream(it)
+            workDir.eachFile {
+                zip.putNextEntry(new ZipEntry(it.getName()))
+                zip.write(it.readBytes())
+                zip.closeEntry()
+            }
         }
-        zip.close()
         workDir.deleteDir()
     }
 

@@ -428,7 +428,7 @@ class SaagieClientTest extends Specification {
         mockWebServer.shutdown()
     }
 
-    def 'Retrieve artifact sucess'() {
+    def 'Retrieve artifact success'() {
         given:
         def stream = getClass().getClassLoader().getResource('upload.txt').openStream()
         def buffer = new Buffer()
@@ -492,7 +492,7 @@ class SaagieClientTest extends Specification {
         noExceptionThrown()
         1 * saagieClient.retrieveJobsArtifacts(6199, './createZip/')
         def file = new File('./createZip').listFiles().find {
-            it.name == 'test.zip'
+            it.name == '6199-test.zip'
         }
         file.exists()
 

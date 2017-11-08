@@ -16,15 +16,15 @@ Buildscript snippets:
 
 ```
 buildscript {
-       repositories {
-           jcenter()
-       }
-       dependencies {
-           classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '2.0.5'
-       }
+   repositories {
+       jcenter()
    }
+   dependencies {
+       classpath group: 'io.saagie', name: 'gradle-saagie-plugin', version: '2.0.5'
+   }
+}
 
-   apply plugin: 'io.saagie.gradle-saagie-plugin'
+apply plugin: 'io.saagie.gradle-saagie-plugin'
 ```
 
 For Gradle 2.1+

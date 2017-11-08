@@ -5,17 +5,13 @@ import io.saagie.plugin.SaagiePluginProperties
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
-/**
- * List all jobs on platform.
- * Created by ekoffi on 7/3/17.
- */
-class ListJobsTask extends DefaultTask {
+class ListVarsTask extends DefaultTask {
     SaagiePluginProperties configuration
 
     @TaskAction
-    def listJobs() {
-        logger.info("List jobs.")
+    def listVars() {
+        logger.info("List environment variables.")
         def saagieClient = new SaagieClient(configuration)
-        logger.quiet("Job list: {}", saagieClient.allJobs)
+        logger.quiet("Var lists: {}", saagieClient.allVars)
     }
 }
