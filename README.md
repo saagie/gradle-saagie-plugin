@@ -54,7 +54,7 @@ The following tasks are available:
 ```
 saagie {
     server {
-        url = https://manager.prod.saagie.io/api/v1
+        url = 'https://manager.prod.saagie.io/api/v1'
         login = 'my-login'
         password = 'my-password'
         platform = 666
