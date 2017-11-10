@@ -617,4 +617,51 @@ class SaagieClientTest extends Specification {
         new File('./fatArchive/').deleteDir()
         mockWebServer.shutdown()
     }
+
+    def "List vars with empty response"() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse())
+        mockWebServer.start()
+        def saagieClient = Spy(SaagieClient, constructorArgs: [Spy(SaagiePluginProperties)])
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+
+        when:
+        def jobs = saagieClient.getAllVars()
+
+        then:
+        println(jobs)
+        noExceptionThrown()
+        jobs.empty
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/envvars'
+
+        cleanup:
+        mockWebServer.shutdown()
+    }
+
+    def 'List vars with correct response'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .setBody("[{\"id\":208,\"name\":\"MONGO_PORT\",\"value\":\"27017\",\"isPassword\":false,\"platformId\":12},{\"id\":782,\"name\":\"MYSQL_USER_PASSWORD\",\"isPassword\":true,\"platformId\":12}]"))
+        mockWebServer.start()
+        def saagieClient = new SaagieClient(Spy(SaagiePluginProperties))
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+
+        when:
+        def jobs = saagieClient.getAllVars()
+
+        then:
+        noExceptionThrown()
+        jobs == [["id": 208, "name": "MONGO_PORT", "value": "27017", "isPassword": false, "platformId": 12], ["id": 782, "name": "MYSQL_USER_PASSWORD", "isPassword": true, "platformId": 12]]
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/envvars'
+
+        cleanup:
+        mockWebServer.shutdown()
+    }
 }
