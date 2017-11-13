@@ -539,4 +539,8 @@ class SaagieClient {
             it.write(JsonOutput.toJson(vars))
         }
     }
+
+    void exportAllVariables() {
+
+    }
 }

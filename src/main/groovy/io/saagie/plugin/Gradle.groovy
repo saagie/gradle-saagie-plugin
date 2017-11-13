@@ -97,7 +97,7 @@ class SaagiePluginProperties {
         jobs = closure.call().collect { Closure cl ->
             def a = new Job()
             cl.delegate = a
-            cl.resolveStrategy = DELEGATE_FIRST
+            cl.resolveStrategy = Closure.DELEGATE_FIRST
             cl.call()
             a
         }
@@ -107,7 +107,7 @@ class SaagiePluginProperties {
         variables = closure.call().collect { Closure cl ->
             def v = new Variable()
             cl.delegate = v
-            cl.resolveStrategy = DELEGATE_FIRST
+            cl.resolveStrategy = Closure.DELEGATE_FIRST
             cl.call()
             v
         }
