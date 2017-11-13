@@ -665,7 +665,7 @@ class SaagieClientTest extends Specification {
         mockWebServer.shutdown()
     }
 
-    def 'Import var into file'() {
+    def 'Export var into file'() {
         given:
         def mockWebServer = new MockWebServer()
         mockWebServer.enqueue(new MockResponse()
@@ -690,7 +690,7 @@ class SaagieClientTest extends Specification {
         mockWebServer.shutdown()
     }
 
-    def 'Import all vars into file'() {
+    def 'Export all vars into file'() {
         given:
         def mockWebServer = new MockWebServer()
         mockWebServer.enqueue(new MockResponse()
@@ -712,6 +712,99 @@ class SaagieClientTest extends Specification {
 
         cleanup:
         new File('./createAllVars/').deleteDir()
+        mockWebServer.shutdown()
+    }
+
+    def 'Create variable with http error'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse().setResponseCode(403))
+        mockWebServer.start()
+        def saagieClient = createSaagieClient()
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+
+        when:
+        saagieClient.createVariable('')
+
+        then:
+        def exception = thrown(GradleException)
+        exception.message == 'Error during variable creation(ErrorCode: 403)'
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/envvars'
+
+        cleanup:
+        mockWebServer.shutdown()
+    }
+
+    def 'Create variable with success'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .setBody('{"id":934,"name":"TEST_VARIABLE","value":"value","isPassword":false,"platformId":1}')
+        )
+        mockWebServer.start()
+        def saagieClient = new SaagieClient(Spy(SaagiePluginProperties))
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+
+        when:
+        def variableId = saagieClient.createVariable('{"id":934,"name":"TEST_VARIABLE","value":"value","isPassword":false,"platformId":1}')
+
+        then:
+        noExceptionThrown()
+        variableId == 934
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/envvars'
+
+        cleanup:
+        mockWebServer.shutdown()
+    }
+
+    def 'Update variable with success'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .setBody('{"id":934,"name":"TEST_VARIABLE","value":"new_value","isPassword":false,"platformId":1}')
+        )
+        mockWebServer.start()
+        def saagieClient = new SaagieClient(Spy(SaagiePluginProperties))
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+
+        when:
+        saagieClient.updateVariable(934, '{"id":934,"name":"TEST_VARIABLE","value":"new_value","isPassword":false,"platformId":1}')
+
+        then:
+        noExceptionThrown()
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/envvars/934'
+
+        cleanup:
+        mockWebServer.shutdown()
+    }
+
+    def 'Update variable with http error'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse().setResponseCode(403))
+        mockWebServer.start()
+        def saagieClient = new SaagieClient(Spy(SaagiePluginProperties))
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+
+        when:
+        saagieClient.updateVariable(208, '{"id":208,"name":"MONGO_PORT","value":"27017","isPassword":false,"platformId":12}')
+
+        then:
+        def exception = thrown(GradleException)
+        exception.message == 'Error during variable update(ErrorCode: 403)'
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/envvars/208'
+
+        cleanup:
         mockWebServer.shutdown()
     }
 }

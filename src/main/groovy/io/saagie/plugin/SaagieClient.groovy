@@ -167,11 +167,11 @@ class SaagieClient {
      * @param body the request body, should comply with current api version.
      * @return The id of the newly created job
      */
-    int createJob(String body) {
+    int createJob(String job) {
         logger.info("Create Job.")
         def request = new Request.Builder()
                 .url("$configuration.server.url/platform/$configuration.server.platform/job")
-                .post(RequestBody.create(JSON_MEDIA_TYPE, body))
+                .post(RequestBody.create(JSON_MEDIA_TYPE, job))
                 .build()
 
         def response = okHttpClient
@@ -556,5 +556,79 @@ class SaagieClient {
             jsonSlurper.parseText(it)
         }
         writeVariablesIntoFile(variables)
+    }
+
+    /**
+     * Create a new variable.
+     * @param variable The json representation of the variable.
+     * @return The id of the newly created variable.
+     */
+    int createVariable(String variable) {
+        logger.info("Create Variable.")
+        def request = new Request.Builder()
+                .url("$configuration.server.url/platform/$configuration.server.platform/envvars")
+                .post(RequestBody.create(JSON_MEDIA_TYPE, variable))
+                .build()
+
+        def response = okHttpClient
+                .newCall(request)
+                .execute()
+
+        if (response.isSuccessful()) {
+            def responseText = response.body().string()
+            def jsonResponse = jsonSlurper.parseText responseText
+            logger.info("Response: {}", responseText)
+            return jsonResponse.id
+        } else {
+            throw new GradleException("Error during variable creation(ErrorCode: ${response.code()})")
+        }
+    }
+
+    /**
+     * Update variable.
+     * @param id The id of the variable to update.
+     * @param variable The new variable json representation. Differential is not available.
+     */
+    void updateVariable(int id, String variable) {
+        logger.info("Update Job.")
+        def request = new Request.Builder()
+                .url("$configuration.server.url/platform/$configuration.server.platform/envvars/$id")
+                .post(RequestBody.create(JSON_MEDIA_TYPE, variable))
+                .build()
+
+        def response = okHttpClient
+                .newCall(request)
+                .execute()
+
+        logger.info("{}", JsonOutput.prettyPrint(variable).stripIndent())
+
+        if (response.isSuccessful()) {
+            logger.info("Variable updated. {}", response.body().string())
+        } else {
+            throw new GradleException("Error during variable update(ErrorCode: ${response.code()})")
+        }
+    }
+
+    /**
+     * Import variables from a json file.
+     */
+    void importVariables() {
+        logger.info('Import a variable list.')
+        def fileContent = new File(configuration.target, configuration.packaging.importFile).text
+        def variables = jsonSlurper.parseText(fileContent) as List<Object>
+        def existingVariables = getAllVars().collect {
+            def value = jsonSlurper.parseText(it)
+            value.id
+        }
+        variables.findAll {
+            it.hasProperty('value')
+        }.each {
+            def jsonVariable = JsonOutput.toJson(it)
+            if (existingVariables.contains(it.id)) {
+                createVariable(jsonVariable)
+            } else {
+                updateVariable((int) it.id, jsonVariable)
+            }
+        }
     }
 }
