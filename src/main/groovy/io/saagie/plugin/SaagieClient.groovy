@@ -329,7 +329,9 @@ class SaagieClient {
         logger.info("Response: {}", content)
         def result = []
         if (!content.empty) {
-            result = jsonSlurper.parseText(content) as List<String>
+            result = (jsonSlurper.parseText(content) as List<Object>).collect {
+                JsonOutput.toJson(it)
+            }
         }
 
         return result
@@ -384,7 +386,7 @@ class SaagieClient {
      * @param buildDir directory where the plugin will work.
      */
     void exportArchive(int id, String buildDir) {
-        logger.info("Archives a job.")
+        logger.info('Archives a job.')
         def workDir = this.retrieveJobsArtifacts(id, buildDir)
         new File(configuration.target, "$id-${configuration.packaging.exportFile}.zip").withOutputStream {
             ZipOutputStream zip = new ZipOutputStream(it)
@@ -519,4 +521,18 @@ class SaagieClient {
         zip.close()
     }
 
+    void exportVariable(List<Integer> variablesIds) {
+        logger.info('Archives an environment variable.')
+        def vars = getAllVars().collect {
+            jsonSlurper.parseText(it)
+        }.findAll {
+            variablesIds.contains(it.id)
+        }
+        logger.error('Content: {}', vars)
+        new File(configuration.target).mkdirs()
+        def file = new File(configuration.target, "$configuration.packaging.exportFile")
+        file.withWriter {
+            it.write(JsonOutput.toJson(vars))
+        }
+    }
 }

@@ -5,6 +5,7 @@ import io.saagie.plugin.jobs.*
 import io.saagie.plugin.properties.Job
 import io.saagie.plugin.properties.Packaging
 import io.saagie.plugin.properties.Server
+import io.saagie.plugin.properties.Variable
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -75,6 +76,7 @@ class SaagiePluginProperties {
     Job job = new Job()
     List<Job> jobs = new LinkedList<Job>()
     Packaging packaging = new Packaging()
+    List<Variable> variables = new LinkedList<Variable>()
     String target = ''
     String fileName = ''
     boolean unsafe = false
@@ -95,9 +97,19 @@ class SaagiePluginProperties {
         jobs = closure.call().collect { Closure cl ->
             def a = new Job()
             cl.delegate = a
-            cl.resolveStrategy = Closure.DELEGATE_FIRST
+            cl.resolveStrategy = DELEGATE_FIRST
             cl.call()
             a
+        }
+    }
+
+    Object variables(Closure closure) {
+        variables = closure.call().collect { Closure cl ->
+            def v = new Variable()
+            cl.delegate = v
+            cl.resolveStrategy = DELEGATE_FIRST
+            cl.call()
+            v
         }
     }
 }
