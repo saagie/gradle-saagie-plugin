@@ -689,4 +689,29 @@ class SaagieClientTest extends Specification {
         new File('./createVars/').deleteDir()
         mockWebServer.shutdown()
     }
+
+    def 'Import all vars into file'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .setBody("[{\"id\":208,\"name\":\"MONGO_PORT\",\"value\":\"27017\",\"isPassword\":false,\"platformId\":12},{\"id\":782,\"name\":\"MYSQL_USER_PASSWORD\",\"isPassword\":true,\"platformId\":12}]"))
+        mockWebServer.start()
+        def saagieClient = new SaagieClient(Spy(SaagiePluginProperties))
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+        saagieClient.configuration.packaging.exportFile = 'test'
+        saagieClient.configuration.target = './createAllVars/'
+
+        when:
+        saagieClient.exportAllVariables()
+
+        then:
+        noExceptionThrown()
+        new File('./createAllVars/test').text == '[{"id":208,"name":"MONGO_PORT","value":"27017","isPassword":false,"platformId":12},{"id":782,"name":"MYSQL_USER_PASSWORD","isPassword":true,"platformId":12}]'
+
+        cleanup:
+        new File('./createAllVars/').deleteDir()
+        mockWebServer.shutdown()
+    }
 }

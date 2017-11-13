@@ -522,6 +522,18 @@ class SaagieClient {
     }
 
     /**
+     * Writes variables into a file.
+     * @param variables The list of variables json objects.
+     */
+    void writeVariablesIntoFile(List<Object> variables) {
+        new File(configuration.target).mkdirs()
+        def file = new File(configuration.target, "$configuration.packaging.exportFile")
+        file.withWriter {
+            it.write(JsonOutput.toJson(variables))
+        }
+    }
+
+    /**
      * Exports passed variables into a json file.
      * @param variablesIds The list of variables to export. If the variable does not exists, the job will export nothing.
      */
@@ -532,15 +544,17 @@ class SaagieClient {
         }.findAll {
             variablesIds.contains(it.id)
         }
-        logger.error('Content: {}', vars)
-        new File(configuration.target).mkdirs()
-        def file = new File(configuration.target, "$configuration.packaging.exportFile")
-        file.withWriter {
-            it.write(JsonOutput.toJson(vars))
-        }
+        writeVariablesIntoFile(vars)
     }
 
+    /**
+     * Exports all variables into a file.
+     */
     void exportAllVariables() {
-
+        logger.info('Export all variables.')
+        def variables = getAllVars().collect {
+            jsonSlurper.parseText(it)
+        }
+        writeVariablesIntoFile(variables)
     }
 }
