@@ -521,6 +521,10 @@ class SaagieClient {
         zip.close()
     }
 
+    /**
+     * Exports passed variables into a json file.
+     * @param variablesIds The list of variables to export. If the variable does not exists, the job will export nothing.
+     */
     void exportVariable(List<Integer> variablesIds) {
         logger.info('Archives an environment variable.')
         def vars = getAllVars().collect {

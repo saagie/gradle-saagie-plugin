@@ -679,7 +679,7 @@ class SaagieClientTest extends Specification {
         saagieClient.configuration.target = './createVars/'
 
         when:
-        saagieClient.exportVariable([208], './createVars/')
+        saagieClient.exportVariable([208])
 
         then:
         noExceptionThrown()
