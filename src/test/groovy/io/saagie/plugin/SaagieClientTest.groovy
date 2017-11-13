@@ -657,7 +657,7 @@ class SaagieClientTest extends Specification {
 
         then:
         noExceptionThrown()
-        jobs == [["id": 208, "name": "MONGO_PORT", "value": "27017", "isPassword": false, "platformId": 12], ["id": 782, "name": "MYSQL_USER_PASSWORD", "isPassword": true, "platformId": 12]]
+        jobs == ['{"id":208,"name":"MONGO_PORT","value":"27017","isPassword":false,"platformId":12}', '{"id":782,"name":"MYSQL_USER_PASSWORD","isPassword":true,"platformId":12}']
         def request = mockWebServer.takeRequest()
         request.path == '/platform/1/envvars'
 
