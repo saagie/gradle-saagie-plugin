@@ -6,26 +6,26 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.TaskAction
 
-class ImportVariableTask extends DefaultTask {
+class ExportVariableTask extends DefaultTask {
     SaagiePluginProperties configuration
 
     @TaskAction
-    def importVariables() {
-        new ImportVariable(configuration).importVariable(logger)
+    def exportVariable() {
+        new ExportVariable(configuration).importVariable(logger)
     }
 }
 
-class ImportVariable {
+class ExportVariable {
     SaagiePluginProperties configuration
     SaagieClient saagieClient
 
-    ImportVariable(SaagiePluginProperties configuration) {
+    ExportVariable(SaagiePluginProperties configuration) {
         this.configuration = configuration
         saagieClient = new SaagieClient(configuration)
     }
 
     def importVariable(Logger logger) {
         logger.info("Import environment variables.")
-        saagieClient.importVariables()
+        saagieClient.exportVariable(configuration.variables.collect { it.id })
     }
 }

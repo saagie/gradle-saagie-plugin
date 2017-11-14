@@ -38,17 +38,23 @@ plugins {
 
 The following tasks are available:
 
-| Tasks         | Description                                               |
-|---------------|-----------------------------------------------------------|
-| listJobs      | Lists all jobs id on the platform.                        |
-| createJob     | Creates a new job.                                        |
-| updateJob     | Updates a job.                                            |
-| exportJob     | Export a job from the platform into a local archive.      |
-| exportAllJobs | Export all jobs from a platform into a local fat archive. |
-| importJob     | Creates a job from a local archive.                       |
-| importAllJobs | Creates a job from a local fat archive.                   |
-| deleteJob     | Delete a job                                              |
-| deleteAllJobs | Delete all jobs from a plateform. Needs unsafe flag       |
+| Tasks              | Description                                               |
+|--------------------|-----------------------------------------------------------|
+| listJobs           | Lists all jobs id on the platform.                        |
+| createJob          | Creates a new job.                                        |
+| updateJob          | Updates a job.                                            |
+| exportJob          | Export a job from the platform into a local archive.      |
+| exportAllJobs      | Export all jobs from a platform into a local fat archive. |
+| importJob          | Creates a job from a local archive.                       |
+| importAllJobs      | Creates a job from a local fat archive.                   |
+| deleteJob          | Delete a job                                              |
+| deleteAllJobs      | Delete all jobs from a plateform. Needs unsafe flag       |
+| listVars           | Lists all variables on the platform.                      |
+| createVariable     | Creates a new variable.                                   |
+| updateVariable     | Updates a variable.                                       |
+| importVariable     | Creates variable from local file.                         |
+| exportVariable     | Export variable from the platform into a local file.      |
+| exportAllVariables | Export all variables from the platform into a local file. |
 
 ## Quick Example
 ```
