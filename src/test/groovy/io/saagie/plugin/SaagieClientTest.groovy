@@ -292,7 +292,6 @@ class SaagieClientTest extends Specification {
         mockWebServer.shutdown()
     }
 
-
     def "Retrieve job's informations"() {
         given:
         def mockWebServer = new MockWebServer()
@@ -803,6 +802,41 @@ class SaagieClientTest extends Specification {
         exception.message == 'Error during variable update(ErrorCode: 403)'
         def request = mockWebServer.takeRequest()
         request.path == '/platform/1/envvars/208'
+
+        cleanup:
+        mockWebServer.shutdown()
+    }
+
+    def 'Import variable'() {
+        given:
+        def mockWebServer = new MockWebServer()
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .setBody('[{"id":934,"name":"TEST_VARIABLE","value":"val","isPassword":false,"platformId":1},{"id":935,"name":"TEST_VARIABLE","value":"val","isPassword":false,"platformId":1}]')
+        )
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .setBody('{"id":208,"name":"MONGO_PORT","value":"27017","isPassword":false,"platformId":12}')
+        )
+        mockWebServer.enqueue(new MockResponse()
+                .addHeader("Content-Type", "application/json; charset=utf-8")
+                .setBody('{"id":934,"name":"TEST_VARIABLE","value":"new_value","isPassword":false,"platformId":1}')
+        )
+        mockWebServer.start()
+        def saagieClient = Spy(SaagieClient, constructorArgs: [Spy(SaagiePluginProperties)])
+        saagieClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
+        saagieClient.configuration.server.platform = '1'
+        saagieClient.configuration.packaging.importFile = getClass().classLoader.getResource('variables').file
+
+        when:
+        saagieClient.importVariables()
+
+        then:
+        noExceptionThrown()
+        1 * saagieClient.createVariable('{"id":208,"name":"MONGO_PORT","value":"27017","isPassword":false,"platformId":1}')
+        1 * saagieClient.updateVariable(935, '{"id":934,"name":"TEST_VARIABLE","value":"value","isPassword":false,"platformId":1}')
+        def request = mockWebServer.takeRequest()
+        request.path == '/platform/1/envvars'
 
         cleanup:
         mockWebServer.shutdown()

@@ -618,16 +618,19 @@ class SaagieClient {
         def variables = jsonSlurper.parseText(fileContent) as List<Object>
         def existingVariables = getAllVars().collect {
             def value = jsonSlurper.parseText(it)
-            value.id
+            [(value.name): value.id]
+        }.inject { a, b ->
+            a + b
         }
         variables.findAll {
-            it.hasProperty('value')
+            it.containsKey('value')
         }.each {
+            (it as Map).replace('platformId', configuration.server.platform as int)
             def jsonVariable = JsonOutput.toJson(it)
-            if (existingVariables.contains(it.id)) {
-                createVariable(jsonVariable)
+            if (existingVariables.keySet().contains(it['name'])) {
+                this.updateVariable(existingVariables[it['name']] as int, jsonVariable)
             } else {
-                updateVariable((int) it.id, jsonVariable)
+                this.createVariable(jsonVariable)
             }
         }
     }
