@@ -2,6 +2,7 @@ package io.saagie.plugin.jobs
 
 import io.saagie.plugin.JobCategory
 import io.saagie.plugin.JobType
+import io.saagie.plugin.SaagieClient
 import io.saagie.plugin.SaagiePluginProperties
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -64,6 +65,7 @@ class CreateJobTest extends Specification {
              }]
         }
         def createJob = new CreateJob(configuration)
+        createJob.saagieClient = Spy(SaagieClient, constructorArgs: [configuration])
 
         when:
         createJob.createJob(logger)

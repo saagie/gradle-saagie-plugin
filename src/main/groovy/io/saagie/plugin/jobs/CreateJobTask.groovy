@@ -30,6 +30,7 @@ class CreateJob {
 
     CreateJob(SaagiePluginProperties configuration) {
         this.configuration = configuration
+        saagieClient = new SaagieClient(configuration)
     }
 
     def createJob(Logger logger) {
@@ -38,7 +39,6 @@ class CreateJob {
             if (job.type == JobType.SQOOP && job.category == JobCategory.PROCESSING) {
                 throw new UnsupportedOperationException("Can't create SQOOP job in processing category.")
             }
-            saagieClient = new SaagieClient(configuration)
 
             saagieClient.getManagerStatus()
 
