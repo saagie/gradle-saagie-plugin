@@ -92,6 +92,11 @@ class Gradle implements Plugin<Project> {
             group = 'saagie'
             configuration = project.saagie
         }
+
+        project.task('listVars', type: ListVarsTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
     }
 }
 
