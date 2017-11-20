@@ -67,6 +67,31 @@ class Gradle implements Plugin<Project> {
             group = 'saagie'
             configuration = project.saagie
         }
+
+        project.task('createVariable', type: CreateVariableTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
+
+        project.task('updateVariable', type: UpdateVariableTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
+
+        project.task('exportVariable', type: ExportVariableTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
+
+        project.task('exportAllVariables', type: ExportAllVariablesTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
+
+        project.task('importVariable', type: ImportVariableTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
     }
 }
 
