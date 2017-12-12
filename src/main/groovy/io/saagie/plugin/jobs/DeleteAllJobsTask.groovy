@@ -22,9 +22,9 @@ class DeleteAllJobsTask extends DefaultTask {
         saagieClient.getManagerStatus()
         if (configuration.unsafe) {
             def jobs = saagieClient.getAllJobs()
-            jobs.each {
-                configuration.job.id = it
-                saagieClient.deleteJob()
+            (jobs - configuration.jobs.collect { it.findId() })
+            .each {
+                saagieClient.deleteJob(it)
             }
             logger.info("All jobs have been deleted.")
         } else {
