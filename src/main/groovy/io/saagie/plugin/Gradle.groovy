@@ -63,7 +63,7 @@ class Gradle implements Plugin<Project> {
             configuration = project.saagie
         }
 
-        project.task('deleteAllJob', type: DeleteAllJobsTask) {
+        project.task('deleteAllJobs', type: DeleteAllJobsTask) {
             group = 'saagie'
             configuration = project.saagie
         }
