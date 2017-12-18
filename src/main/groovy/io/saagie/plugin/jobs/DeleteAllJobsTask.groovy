@@ -26,7 +26,7 @@ class DeleteAllJobsTask extends DefaultTask {
             .each {
                 saagieClient.deleteJob(it)
             }
-            logger.info("All jobs have been deleted.")
+            logger.info("Jobs have been deleted.")
         } else {
             logger.error("Unsafe operation, unsafe flag must be checked.")
         }
