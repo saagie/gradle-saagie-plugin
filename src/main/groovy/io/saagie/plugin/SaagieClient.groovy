@@ -387,16 +387,15 @@ class SaagieClient {
      */
     void exportArchive(int id, String buildDir) {
         logger.info('Archives a job.')
-        def workDir = this.retrieveJobsArtifacts(id, buildDir)
-        new File(configuration.target, "$id-${configuration.packaging.exportFile}.zip").withOutputStream {
-            ZipOutputStream zip = new ZipOutputStream(it)
-            workDir.eachFile {
-                zip.putNextEntry(new ZipEntry(it.getName()))
-                zip.write(it.readBytes())
-                zip.closeEntry()
-            }
+        File workDir = this.retrieveJobsArtifacts(id, buildDir)
+        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File("$buildDir/exports", "${workDir.canonicalFile.name}.zip")))
+        workDir.eachFile {
+            zip.putNextEntry(new ZipEntry(it.getName()))
+            zip.write(it.readBytes())
+            zip.closeEntry()
         }
         workDir.deleteDir()
+        zip.close()
     }
 
     /**
