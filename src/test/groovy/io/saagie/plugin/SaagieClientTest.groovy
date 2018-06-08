@@ -491,7 +491,7 @@ class SaagieClientTest extends Specification {
         noExceptionThrown()
         1 * saagieClient.retrieveJobsArtifacts(6199, './createZip/')
         def file = new File('./createZip').listFiles().find {
-            it.name == '6199-test.zip'
+            it.name == '6199-Impala_Connection.zip'
         }
         file.exists()
 

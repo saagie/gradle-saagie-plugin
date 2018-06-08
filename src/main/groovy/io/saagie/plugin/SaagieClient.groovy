@@ -388,7 +388,7 @@ class SaagieClient {
     void exportArchive(int id, String buildDir) {
         logger.info('Archives a job.')
         File workDir = this.retrieveJobsArtifacts(id, buildDir)
-        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File("$buildDir/exports", "${workDir.canonicalFile.name}.zip")))
+        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File(configuration.target, "${workDir.canonicalFile.name}.zip")))
         workDir.eachFile {
             zip.putNextEntry(new ZipEntry(it.getName()))
             zip.write(it.readBytes())
