@@ -97,6 +97,16 @@ class Gradle implements Plugin<Project> {
             group = 'saagie'
             configuration = project.saagie
         }
+
+        project.task('runJob', type: RunJobTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
+
+        project.task('stopJob', type: StopJobTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
     }
 }
 

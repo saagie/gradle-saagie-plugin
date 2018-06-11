@@ -633,4 +633,49 @@ class SaagieClient {
             }
         }
     }
+
+    /**
+     * Starts a job from it's id.
+     * @param id The id of the job to run.
+     */
+    void runJob(int id) {
+        logger.info("Run job.")
+        def request = new Request.Builder()
+                .url("$configuration.server.url/platform/$configuration.server.platform/job/$id/run")
+                .post(RequestBody.create(JSON_MEDIA_TYPE, '{}'))
+                .build()
+
+        def response = okHttpClient
+                .newCall(request)
+                .execute()
+
+        if (response.isSuccessful()) {
+            logger.info("Job run. {}", response.body().string())
+        } else {
+            throw new GradleException("Error during job run(ErrorCode: ${response.code()})")
+        }
+    }
+
+    /**
+     * Stop a job from it's id.
+     * @param id The id of the job to stop.
+     */
+    void stopJob(int id) {
+        logger.info("Stop job.")
+
+        def request = new Request.Builder()
+                .url("$configuration.server.url/platform/$configuration.server.platform/job/$id/stop")
+                .post(RequestBody.create(JSON_MEDIA_TYPE, '{}'))
+                .build()
+
+        def response = okHttpClient
+                .newCall(request)
+                .execute()
+
+        if (response.isSuccessful()) {
+            logger.info("Job stop. {}", response.body().string())
+        } else {
+            throw new GradleException("Error during job stop(ErrorCode: ${response.code()})")
+        }
+    }
 }
