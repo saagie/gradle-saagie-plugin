@@ -1,11 +1,19 @@
 package io.saagie.plugin
 
 import groovy.transform.Canonical
-import io.saagie.plugin.jobs.*
+import io.saagie.plugin.tasks.execution.RunJobTask
+import io.saagie.plugin.tasks.execution.StopJobTask
+import io.saagie.plugin.tasks.jobs.*
 import io.saagie.plugin.properties.Job
 import io.saagie.plugin.properties.Packaging
 import io.saagie.plugin.properties.Server
 import io.saagie.plugin.properties.Variable
+import io.saagie.plugin.tasks.variables.CreateVariableTask
+import io.saagie.plugin.tasks.variables.ExportAllVariablesTask
+import io.saagie.plugin.tasks.variables.ExportVariableTask
+import io.saagie.plugin.tasks.variables.ImportVariableTask
+import io.saagie.plugin.tasks.variables.ListVarsTask
+import io.saagie.plugin.tasks.variables.UpdateVariableTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

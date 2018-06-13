@@ -44,7 +44,7 @@ class GradleTest extends Specification {
             new File(it)
         }
     }
-
+/*
     def "Empty job list creation"() {
         given:
         buildFile << """
@@ -64,4 +64,5 @@ class GradleTest extends Specification {
         then:
         println(result.output)
     }
+    */
 }
