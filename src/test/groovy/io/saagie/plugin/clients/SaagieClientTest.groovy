@@ -539,23 +539,18 @@ class SaagieClientTest extends Specification {
         new File('./createFatZip').deleteDir()
     }
 
-    //TODO: Split in two tests but hey...
     def "Archive process unsupported type"() {
         given:
         def saagieClient = Spy(SaagieClient, constructorArgs: [Spy(SaagiePluginProperties)])
-        def zipDocker = new ZipFile(new File(getClass().classLoader.getResource("docker.zip").file))
         def zipJupyter = new ZipFile(new File(getClass().classLoader.getResource("jupyter.zip").file))
 
         when:
-        saagieClient.processArchive('./processDocker/', zipDocker)
         saagieClient.processArchive('./processJupyter/', zipJupyter)
 
         then:
-        !new File('./processDocker/').exists()
         !new File('./processJupyter/').exists()
 
         cleanup:
-        zipDocker.close()
         zipJupyter.close()
     }
 
