@@ -53,7 +53,7 @@ class UpdateJob {
             current.memory = job.memory
             current.disk = job.disk
 
-            if (job.type != JobType.SQOOP) {
+            if (job.type != JobType.SQOOP && job.type != JobType.DOCKER) {
                 current.file = saagieClient.uploadFile(Paths.get(configuration.target, configuration.fileName))
             }
             switch (job.type) {
@@ -99,6 +99,26 @@ class UpdateJob {
                     break
                 case JobType.SQOOP:
                     current.template = job.template
+                    break
+                case JobType.DOCKER:
+                    current.enableAuth = job.auth
+                    current.packageUrl = job.packageUrl
+                    current.externalPort = job.externalPort
+                    current.isExternalPort = job.externalPort != 0
+                    current.externalSubDomain = job.externalSubDomain
+                    current.isExternalSubDomain = !job.externalSubDomain.empty
+                    if (job.streaming) {
+                        current.internalPort = job.internalPort
+                        current.isInternalPort = job.internalPort != 0
+                        current.internalSubDomain = job.internalSubDomain
+                        current.isInternalSubDomain = !job.internalSubDomain.empty
+                    }
+                    if (!job.dockerUser.empty && !job.dockerPassword.empty) {
+                        current.authUsername = job.dockerUser
+                        current.authPassword = job.dockerPassword
+                        current.isDockerRegistryAuth = true
+                    }
+                    body.streaming = job.streaming
                     break
                 default:
                     throw new UnsupportedOperationException("$job.type is currently not supported.")
