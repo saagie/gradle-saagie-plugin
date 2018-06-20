@@ -26,6 +26,12 @@ class Job {
     String email = ''
     String template = ''
     String idFile = ''
+    String packageUrl = ''
+    int externalPort = 0
+    int internalPort = 0
+    String internalSubDomain = ''
+    String externalSubDomain = ''
+
     //TODO: always_email, important versions
 
     /**

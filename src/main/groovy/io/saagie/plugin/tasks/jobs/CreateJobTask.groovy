@@ -3,8 +3,8 @@ package io.saagie.plugin.tasks.jobs
 import groovy.json.JsonOutput
 import io.saagie.plugin.JobCategory
 import io.saagie.plugin.JobType
-import io.saagie.plugin.clients.SaagieClient
 import io.saagie.plugin.SaagiePluginProperties
+import io.saagie.plugin.clients.SaagieClient
 import org.gradle.api.DefaultTask
 import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.TaskAction
@@ -50,6 +50,20 @@ class CreateJob {
                     disk       : job.disk,
                     releaseNote: job.releaseNote
             ]
+            if (job.type == JobType.DOCKER) {
+                current << [
+                        enableAuth       : false,
+                        packageUrl       : job.packageUrl,
+                        externalSubDomain: job.externalSubDomain,
+                        externalPort     : job.externalPort
+                ]
+                if (job.streaming) {
+                    current << [
+                            internalSubDomain: job.internalSubDomain,
+                            internalPort     : job.internalPort
+                    ]
+                }
+            }
             def body = [
                     platform_id : configuration.server.platform,
                     capsule_code: job.type,
@@ -61,7 +75,7 @@ class CreateJob {
                     retry       : '',
                     schedule    : 'R0/2017-05-23T13:59:05.587Z/P0Y0M1DT0H0M0S'
             ]
-            if (job.type != JobType.SQOOP) {
+            if (job.type != JobType.SQOOP && job.type != JobType.DOCKER) {
                 current.file = saagieClient.uploadFile(Paths.get(configuration.target, configuration.fileName))
                 logger.info "File: ${current.file} uploaded."
             }
@@ -110,6 +124,9 @@ class CreateJob {
                     break
                 case JobType.SQOOP:
                     current.template = job.template
+                    break
+                case JobType.DOCKER:
+                    body.streaming = job.streaming
                     break
                 default:
                     throw new UnsupportedOperationException("$job.type is currently not supported.")
