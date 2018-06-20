@@ -127,6 +127,7 @@ class CreateJob {
                     if (!job.dockerUser.empty && !job.dockerPassword.empty) {
                         current.authUsername = job.dockerUser
                         current.authPassword = job.dockerPassword
+                        current.isDockerRegistryAuth = true
                     }
                     body.streaming = job.streaming
                     break
