@@ -419,7 +419,7 @@ class SaagieClient {
      */
     void processArchive(String buildDir, ZipFile zip) {
         def settings = jsonSlurper.parseText(zip.getInputStream(zip.getEntry("settings.json")).text)
-        if (settings.capsule_code != 'docker' && settings.capsule_code != 'jupiter') {
+        if (settings.capsule_code != JobType.JUPYTER) {
             settings.remove("id")
             settings.remove("platform_id")
             settings.remove("last_state")
@@ -435,7 +435,7 @@ class SaagieClient {
                 (!configuration.packaging.currentOnly || it.number == current.number)
             } each { version ->
                 settings.current = version
-                if (settings.capsule_code != JobType.SQOOP) {
+                if (settings.capsule_code != JobType.SQOOP && settings.capsule_code != JobType.DOCKER) {
                     logger.info("File searched: {}", "$version.number-$version.file")
                     def file = zip.getInputStream(zip.getEntry("$version.number-$version.file"))
                     def path = Files.write(Paths.get(buildDir, "$version.file"), file.bytes)
