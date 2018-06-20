@@ -27,6 +27,7 @@ class Job {
     String template = ''
     String idFile = ''
     String packageUrl = ''
+    boolean auth = true
     int externalPort = 0
     int internalPort = 0
     String internalSubDomain = ''

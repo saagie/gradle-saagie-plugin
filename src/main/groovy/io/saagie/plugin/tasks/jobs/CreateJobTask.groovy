@@ -50,22 +50,6 @@ class CreateJob {
                     disk       : job.disk,
                     releaseNote: job.releaseNote
             ]
-            if (job.type == JobType.DOCKER) {
-                current << [
-                        enableAuth       : false,
-                        packageUrl       : job.packageUrl,
-                        externalSubDomain: job.externalSubDomain,
-                        externalPort     : job.externalPort,
-                        isExternalPort   : job.externalPort != 0
-                ]
-                if (job.streaming) {
-                    current << [
-                            internalSubDomain: job.internalSubDomain,
-                            internalPort     : job.internalPort,
-                            isInternalPort   : job.internalPort != 0
-                    ]
-                }
-            }
             def body = [
                     platform_id : configuration.server.platform,
                     capsule_code: job.type,
@@ -128,6 +112,18 @@ class CreateJob {
                     current.template = job.template
                     break
                 case JobType.DOCKER:
+                    current.enableAuth = job.auth
+                    current.packageUrl = job.packageUrl
+                    current.externalPort = job.externalPort
+                    current.isExternalPort = job.externalPort != 0
+                    current.externalSubDomain = job.externalSubDomain
+                    current.isExternalSubDomain = !job.externalSubDomain.empty
+                    if (job.streaming) {
+                        current.internalPort = job.internalPort
+                        current.isInternalPort = job.internalPort != 0
+                        current.internalSubDomain = job.internalSubDomain
+                        current.isInternalSubDomain = !job.internalSubDomain.empty
+                    }
                     body.streaming = job.streaming
                     break
                 default:
