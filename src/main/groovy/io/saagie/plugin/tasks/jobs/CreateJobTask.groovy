@@ -124,6 +124,10 @@ class CreateJob {
                         current.internalSubDomain = job.internalSubDomain
                         current.isInternalSubDomain = !job.internalSubDomain.empty
                     }
+                    if (!job.dockerUser.empty && !job.dockerPassword.empty) {
+                        current.authUsername = job.dockerUser
+                        current.authPassword = job.dockerPassword
+                    }
                     body.streaming = job.streaming
                     break
                 default:

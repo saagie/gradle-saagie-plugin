@@ -26,6 +26,9 @@ class Job {
     String email = ''
     String template = ''
     String idFile = ''
+
+    String dockerUser = ''
+    String dockerPassword = ''
     String packageUrl = ''
     boolean auth = true
     int externalPort = 0
