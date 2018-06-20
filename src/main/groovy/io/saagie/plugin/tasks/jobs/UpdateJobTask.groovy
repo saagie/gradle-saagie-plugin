@@ -118,7 +118,6 @@ class UpdateJob {
                         current.authPassword = job.dockerPassword
                         current.isDockerRegistryAuth = true
                     }
-                    body.streaming = job.streaming
                     break
                 default:
                     throw new UnsupportedOperationException("$job.type is currently not supported.")
