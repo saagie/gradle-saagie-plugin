@@ -55,12 +55,14 @@ class CreateJob {
                         enableAuth       : false,
                         packageUrl       : job.packageUrl,
                         externalSubDomain: job.externalSubDomain,
-                        externalPort     : job.externalPort
+                        externalPort     : job.externalPort,
+                        isExternalPort   : job.externalPort != 0
                 ]
                 if (job.streaming) {
                     current << [
                             internalSubDomain: job.internalSubDomain,
-                            internalPort     : job.internalPort
+                            internalPort     : job.internalPort,
+                            isInternalPort   : job.internalPort != 0
                     ]
                 }
             }
