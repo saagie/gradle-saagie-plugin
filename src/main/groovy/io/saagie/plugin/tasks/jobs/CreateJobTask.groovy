@@ -36,10 +36,17 @@ class CreateJob {
     def createJob(Logger logger) {
         logger.info("Create Job.")
         configuration.jobs.each { job ->
-            if (job.type == JobType.SQOOP && job.category == JobCategory.PROCESSING) {
+            if (job.type == JobType.SQOOP && job.category != JobCategory.EXTRACT) {
                 throw new UnsupportedOperationException("Can't create SQOOP job in processing category.")
             }
 
+            if (job.type == JobType.DOCKER && job.internalPort != 0 && !job.streaming) {
+                throw new UnsupportedOperationException("Can't expose internal port if not long job (streaming)")
+            }
+
+            if (job.category == JobCategory.DATAVIZ && job.type != JobType.DOCKER) {
+                throw new UnsupportedOperationException("Can't create ${job.type} in smart-app section (dataviz)")
+            }
             saagieClient.getManagerStatus()
 
             LinkedHashMap<String, Object> options = []

@@ -6,4 +6,5 @@ package io.saagie.plugin
 interface JobCategory {
     String EXTRACT = "extract"
     String PROCESSING = "processing"
+    String DATAVIZ = "dataviz"
 }
