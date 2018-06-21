@@ -249,17 +249,20 @@ class SaagieClient {
                 .url("$configuration.server.url/platform/$configuration.server.platform/job/$id")
                 .get()
                 .build()
+        try {
+            def response = okHttpClient
+                    .newCall(request)
+                    .execute()
 
-        def response = okHttpClient
-                .newCall(request)
-                .execute()
-
-        logger.info("Response code: {}", response.code())
-        if (response.isSuccessful()) {
-            def jsonResponse = response.body().string()
-            return jsonResponse
-        } else {
-            throw new GradleException("Impossible to find job $id (ErrorCode: ${response.code()})")
+            logger.info("Response code: {}", response.code())
+            if (response.isSuccessful()) {
+                def jsonResponse = response.body().string()
+                return jsonResponse
+            } else {
+                throw new GradleException("Impossible to find job $id (ErrorCode: ${response.code()})")
+            }
+        } catch (Exception ex) {
+            throw new GradleException("Error while retrieving job: $id", ex)
         }
 
     }
