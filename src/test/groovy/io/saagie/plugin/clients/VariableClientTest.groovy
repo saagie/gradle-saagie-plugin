@@ -234,6 +234,7 @@ class VariableClientTest extends Specification {
         variablesClient.configuration.server.url = "http://$mockWebServer.hostName:$mockWebServer.port"
         variablesClient.configuration.server.platform = '1'
         variablesClient.configuration.packaging.importFile = getClass().classLoader.getResource('variables').file
+        variablesClient.configuration.variables {[{name = 'EXCLUDE_VARIABLE'}]}
 
         when:
         variablesClient.importVariables()

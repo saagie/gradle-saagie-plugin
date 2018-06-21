@@ -131,8 +131,11 @@ class VariablesClient extends SaagieClient {
         }.inject { a, b ->
             a + b
         }
-        variables.findAll {
-            it.containsKey('value')
+        variables.findAll { var ->
+            def filter = configuration.variables.findAll {
+                it.name == var['name']
+            }
+            var.containsKey('value') && (filter.empty)
         }.each {
             (it as Map).replace('platformId', configuration.server.platform as int)
             def jsonVariable = JsonOutput.toJson(it)
