@@ -332,7 +332,7 @@ class SaagieClientTest extends Specification {
 
         then:
         def exception = thrown(GradleException)
-        exception.message == 'Impossible to find job 6199 (ErrorCode: 400)'
+        exception.message == 'Error while retrieving job: 6199'
         def request = mockWebServer.takeRequest()
         request.method == 'GET'
         request.path == '/platform/1/job/6199'
