@@ -338,7 +338,9 @@ class SaagieClient {
         if (![JobType.SQOOP, JobType.DOCKER, JobType.JUPYTER].contains(jsonJob.capsule_code)) {
             def client = okHttpClient
                     .newBuilder()
+                    .connectTimeout(10, TimeUnit.SECONDS)
                     .readTimeout(10, TimeUnit.MINUTES)
+                    .writeTimeout(10, TimeUnit.SECONDS)
                     .build()
 
             jsonJob.versions.findAll {
