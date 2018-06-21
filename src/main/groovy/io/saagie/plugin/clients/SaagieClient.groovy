@@ -100,7 +100,7 @@ class SaagieClient {
             }
         })
         builder.connectTimeout(2, TimeUnit.SECONDS)
-        builder.readTimeout(8, TimeUnit.SECONDS)
+        builder.readTimeout(20, TimeUnit.SECONDS)
         builder.writeTimeout(8, TimeUnit.SECONDS)
 
         okHttpClient = builder.build()
