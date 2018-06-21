@@ -55,6 +55,8 @@ The following tasks are available:
 | importVariable     | Creates variable from local file.                         |
 | exportVariable     | Export variable from the platform into a local file.      |
 | exportAllVariables | Export all variables from the platform into a local file. |
+| runJob             | Runs a job on the platform.                               |
+| stopJob            | Stops a job on the platform.                              |
 
 ## Quick Example
 ```
