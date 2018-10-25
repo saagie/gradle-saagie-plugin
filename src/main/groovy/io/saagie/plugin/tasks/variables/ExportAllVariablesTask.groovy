@@ -1,6 +1,5 @@
 package io.saagie.plugin.tasks.variables
 
-import io.saagie.plugin.clients.SaagieClient
 import io.saagie.plugin.SaagiePluginProperties
 import io.saagie.plugin.clients.VariablesClient
 import org.gradle.api.DefaultTask
@@ -12,7 +11,7 @@ class ExportAllVariablesTask extends DefaultTask {
 
     @TaskAction
     def exportAllVariables() {
-        new ExportAllVariables(configuration).importVariable(logger)
+        new ExportAllVariables(configuration).exportAllVariables(logger)
     }
 }
 
@@ -25,7 +24,7 @@ class ExportAllVariables {
         variablesClient = new VariablesClient(configuration)
     }
 
-    def importVariable(Logger logger) {
+    def exportAllVariables(Logger logger) {
         logger.info("Import all environment variables.")
         variablesClient.exportAllVariables()
     }
