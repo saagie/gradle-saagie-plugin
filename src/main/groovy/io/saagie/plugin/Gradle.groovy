@@ -115,6 +115,31 @@ class Gradle implements Plugin<Project> {
             group = 'saagie'
             configuration = project.saagie
         }
+
+        project.task('listPipelines', type: ListPipelinesTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
+
+        project.task('exportPipeline', type: ExportPipelineTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
+
+        project.task('exportAllPipelines', type: ExportAllPipelinesTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
+
+        project.task('importPipeline', type: ImportPipelineTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
+
+        project.task('importAllPipelines', type: ImportAllPipelinesTask) {
+            group = 'saagie'
+            configuration = project.saagie
+        }
     }
 }
 
