@@ -145,9 +145,9 @@ class SaagieClient {
         def request = new Request.Builder()
                 .url("$configuration.server.url/platform/$configuration.server.platform/job/upload")
                 .post(new MultipartBody.Builder()
-                .setType(FORM_DATA_MEDIA_TYPE)
-                .addFormDataPart("file", file.getName(), RequestBody.create(FORM_DATA_MEDIA_TYPE, file))
-                .build())
+                        .setType(FORM_DATA_MEDIA_TYPE)
+                        .addFormDataPart("file", file.getName(), RequestBody.create(FORM_DATA_MEDIA_TYPE, file))
+                        .build())
                 .build()
 
         def response = client
@@ -319,6 +319,23 @@ class SaagieClient {
     }
 
     /**
+     * Returns a platform's complete job id list.
+     * @return Job's id list.
+     */
+    String getAllJobsData() {
+        logger.info("Returns job list for platform {}", configuration.server.platform)
+        def request = new Request.Builder()
+                .url("$configuration.server.url/platform/$configuration.server.platform/job")
+                .get()
+                .build()
+
+        def response = okHttpClient.newCall(request).execute()
+        def content = response.body().string()
+
+        return content
+    }
+
+    /**
      * Retrieves artifacts for a job.
      * @param id Job id to retrieve
      * @param buildDir directory where the plugin will work.
@@ -367,11 +384,12 @@ class SaagieClient {
      * Create an archive with job description and files.
      * @param id Job id to retrieve.
      * @param buildDir directory where the plugin will work.
+     * @param (optional) targetDir directory where the plugin will put the zip file generated
      */
-    void exportArchive(int id, String buildDir) {
+    void exportArchive(int id, String buildDir, String targetDir=configuration.target) {
         logger.info('Archives a job.')
         File workDir = this.retrieveJobsArtifacts(id, buildDir)
-        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File(configuration.target, "${workDir.canonicalFile.name}.zip")))
+        ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(new File(targetDir, "${workDir.canonicalFile.name}.zip")))
         workDir.eachFile {
             zip.putNextEntry(new ZipEntry(it.getName()))
             zip.write(it.readBytes())
@@ -421,9 +439,48 @@ class SaagieClient {
      * Import a job to the platform.
      * @param buildDir The directory where method will work.
      * @param zip The archive of the job to upload.
+     * @param jobsInfo Json of all jobs on the destination platform
      */
-    void processArchive(String buildDir, ZipFile zip) {
+    int processArchive(String buildDir, ZipFile zip, String jobsInfo='') {
         def settings = jsonSlurper.parseText(zip.getInputStream(zip.getEntry("settings.json")).text)
+
+        int idFound = 0
+        // check if there is already a job with the same name, category and technology on the destination platform
+        // if yes, we deleted it
+        if (!jobsInfo.empty){
+            def jobs = jsonSlurper.parseText(jobsInfo)
+            jobs.each {
+                if (it.name == settings.name && it.capsule_code == settings.capsule_code && it.category == settings.category){
+                    def deletion = true
+                    if (it.keySet().contains("workflows")){
+                        it.workflows.each{
+                            logger.info("jobs workflow: {}", it)
+                            if (settings.keySet().contains("workflows")){
+                                settings.workflows.each{ workflow ->
+                                    logger.info("settings workflow: {}", workflow)
+                                    logger.info("it.name: {}", it.name)
+                                    logger.info("workflow.name: {}", workflow.name)
+                                    if (it.name == workflow.name){
+                                        logger.info("common pipelines' name: {}", it.name)
+                                        deletion = false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (deletion){
+                        logger.info("Job to delete on destination platform: {}", it)
+                        this.deleteJob(it.id)
+                    } else {
+                        idFound = it.id
+                    }
+
+                }
+            }
+        }
+        if (idFound != 0){
+            return idFound
+        }
         if (settings.capsule_code != JobType.JUPYTER) {
             settings.remove("id")
             settings.remove("platform_id")
@@ -466,6 +523,10 @@ class SaagieClient {
             if (!configuration.packaging.currentOnly) {
                 currentVersion(id, (Integer) current.number)
             }
+
+            return id
+        } else {
+            return 0
         }
     }
 
@@ -503,4 +564,3 @@ class SaagieClient {
         zip.close()
     }
 }
-
