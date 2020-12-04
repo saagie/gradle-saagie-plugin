@@ -441,12 +441,12 @@ class SaagieClient {
      * @param zip The archive of the job to upload.
      * @param jobsInfo Json of all jobs on the destination platform
      */
-    int processArchive(String buildDir, ZipFile zip, String jobsInfo="") {
+    int processArchive(String buildDir, ZipFile zip, String jobsInfo='') {
         def settings = jsonSlurper.parseText(zip.getInputStream(zip.getEntry("settings.json")).text)
 
-        def idFound = 0
-        /* check if there is already a job with the same name, category and technology on the destination platform
-        * if yes, we deleted it */
+        int idFound = 0
+        // check if there is already a job with the same name, category and technology on the destination platform
+        // if yes, we deleted it
         if (!jobsInfo.empty){
             def jobs = jsonSlurper.parseText(jobsInfo)
             jobs.each {
@@ -525,6 +525,8 @@ class SaagieClient {
             }
 
             return id
+        } else {
+            return 0
         }
     }
 

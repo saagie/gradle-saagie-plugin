@@ -1,6 +1,7 @@
 package io.saagie.plugin
 
 import groovy.transform.Canonical
+import io.saagie.plugin.properties.Pipeline
 import io.saagie.plugin.tasks.execution.RunJobTask
 import io.saagie.plugin.tasks.execution.StopJobTask
 import io.saagie.plugin.tasks.jobs.*
@@ -14,6 +15,11 @@ import io.saagie.plugin.tasks.variables.ExportVariableTask
 import io.saagie.plugin.tasks.variables.ImportVariableTask
 import io.saagie.plugin.tasks.variables.ListVarsTask
 import io.saagie.plugin.tasks.variables.UpdateVariableTask
+import io.saagie.plugin.tasks.pipelines.ListPipelinesTask
+import io.saagie.plugin.tasks.pipelines.ExportPipelineTask
+import io.saagie.plugin.tasks.pipelines.ExportAllPipelinesTask
+import io.saagie.plugin.tasks.pipelines.ImportPipelineTask
+import io.saagie.plugin.tasks.pipelines.ImportAllPipelinesTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -153,6 +159,8 @@ class SaagiePluginProperties {
     String target = ''
     String fileName = ''
     boolean unsafe = false
+    Pipeline pipeline = new Pipeline()
+    List<Pipeline> pipelines = new LinkedList<Pipeline>()
 
     Object server(Closure closure) {
         server.with(closure)
@@ -164,6 +172,10 @@ class SaagiePluginProperties {
 
     Object packaging(Closure closure) {
         packaging.with(closure)
+    }
+
+    Object pipeline(Closure closure){
+        pipeline.with(closure)
     }
 
     Object jobs(Closure closure) {
@@ -183,6 +195,16 @@ class SaagiePluginProperties {
             cl.resolveStrategy = Closure.DELEGATE_FIRST
             cl.call()
             v
+        }
+    }
+
+    Object pipelines(Closure closure) {
+        pipelines = closure.call().collect { Closure cl ->
+            def p = new Pipeline()
+            cl.delegate = p
+            cl.resolveStrategy = Closure.DELEGATE_FIRST
+            cl.call()
+            p
         }
     }
 }
