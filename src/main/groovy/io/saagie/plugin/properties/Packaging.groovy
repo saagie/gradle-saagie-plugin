@@ -11,4 +11,5 @@ class Packaging {
     String exportFile = ''
     String importFile = ''
     boolean currentOnly = true
+    boolean pipelineImportErase = false
 }
