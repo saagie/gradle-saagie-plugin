@@ -55,9 +55,9 @@ The following tasks are available:
 | importVariable     | Creates variable from local file.                         |
 | exportVariable     | Export variable from the platform into a local file.      |
 | exportAllVariables | Export all variables from the platform into a local file. |
-| listPipelines      | Lists all pipelines on the platform.                       |
+| listPipelines      | Lists all pipelines on the platform.                      |
 | exportPipeline     | Export pipeline from the platform into a local file.      |
-| exportAllPipelines | Export all pipeline from the platform into a local file.  |
+| exportAllPipelines | Export all pipelines from the platform into a local file. |
 | importPipeline     | Creates a pipeline from a local archive.                  |
 | importAllPipelines | Creates pipelines from local fat archive.                 | 
 | runJob             | Runs a job on the platform.                               |
