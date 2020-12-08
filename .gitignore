@@ -66,3 +66,6 @@ keys.tar
 gradle-*.*/
 gradle-*.*-bin.zip
 plugin-classpath.txt
+gradle/
+gradlew
+gradlew.bat
